@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plane_alarm/cubit/arrival_cubit.dart';
+import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
+import 'package:plane_alarm/cubit/flight_destination_cubit.dart';
 import 'package:plane_alarm/widgets/arrival_info_widget.dart';
 import 'package:plane_alarm/widgets/flight_info_column.dart';
 import 'package:plane_alarm/widgets/my_bottom_app_bar.dart';
@@ -13,8 +16,14 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<FlightDetailsCubit>().fetchFlightData("PGT39ME");
+
+    Timer.periodic(const Duration(minutes: 15), (_) {
+      context.read<FlightDetailsCubit>().fetchFlightData("PGT39ME");
+    });
+
     return BlocProvider(
-      create: (_) => ArrivalCubit(),
+      create: (_) => ArrivalPlaneIndicatorCubit(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Plane Alarm'),

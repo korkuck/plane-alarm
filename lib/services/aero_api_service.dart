@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AeroApiService {
-  // Base from the OpenAPI servers config
   static const _base = 'https://aeroapi.flightaware.com/aeroapi';
   final String apiKey;
 
@@ -10,13 +9,8 @@ class AeroApiService {
 
   /// Fetch flights by ident (registration, ICAO ident, or fa_flight_id)
   /// Returns the parsed JSON for the flights array (or throws).
-  Future<List<dynamic>> fetchFlightsByIdent(
-    String ident, {
-    String? identType,
-  }) async {
-    final uri = Uri.parse(
-      '$_base/flights/$ident${identType != null ? '?ident_type=$identType' : ''}',
-    );
+  Future<List<dynamic>> fetchFlightsByIdent(String ident) async {
+    final uri = Uri.parse('$_base/flights/$ident');
     final resp = await http.get(
       uri,
       headers: {'x-apikey': apiKey, 'Accept': 'application/json'},

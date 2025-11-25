@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plane_alarm/widgets/arrival_time_listener_widget.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 // ...existing code...
@@ -16,7 +17,7 @@ class ArrivalInfoWidget extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              const Center(child: MyBoldText('14:30')),
+              const Center(child: ArrivalTimeListenerWidget()),
               Positioned(left: 40, child: Icon(Icons.alarm, size: 40)),
             ],
           ),

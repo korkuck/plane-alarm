@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:plane_alarm/cubit/arrival_cubit.dart';
+import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
 
 class PlaneOverEarthWidget extends StatefulWidget {
   const PlaneOverEarthWidget({super.key});
@@ -42,13 +42,13 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
     const earthSvg = 'assets/earth-globe-global-svgrepo-com.svg';
     const airplaneSvg = 'assets/airplane-best.svg';
 
-    final cubit = context.read<ArrivalCubit>();
+    final cubit = context.read<ArrivalPlaneIndicatorCubit>();
     final double earthSize = 240;
     final double dx = 0;
     final double dy = -earthSize / 2 - 20;
 
     return Center(
-      child: BlocBuilder<ArrivalCubit, double>(
+      child: BlocBuilder<ArrivalPlaneIndicatorCubit, double>(
         builder: (context, state) {
           final angleRadians = state * pi / 180;
 
