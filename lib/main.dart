@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
-import 'package:plane_alarm/cubit/flight_destination_cubit.dart';
+import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/pages/home_page.dart';
 import 'package:plane_alarm/services/aero_api_service.dart';
 import 'package:plane_alarm/theme/my_theme_data.dart';
@@ -22,8 +22,13 @@ Future<void> main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ArrivalPlaneIndicatorCubit()),
         BlocProvider(create: (_) => FlightDetailsCubit(api)),
+        BlocProvider(
+          create:
+              (context) => ArrivalPlaneIndicatorCubit(
+                context.read<FlightDetailsCubit>(),
+              ),
+        ),
       ],
       child: const MyApp(),
     ),

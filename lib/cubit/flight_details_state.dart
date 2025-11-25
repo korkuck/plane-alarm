@@ -1,4 +1,4 @@
-part of 'flight_destination_cubit.dart';
+part of 'flight_details_cubit.dart';
 
 abstract class FlightDetailsState extends Equatable {
   @override

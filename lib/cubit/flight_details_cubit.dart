@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import '../services/aero_api_service.dart';
 
-part 'flight_destination_state.dart';
+part 'flight_details_state.dart';
 
 class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   final AeroApiService api;

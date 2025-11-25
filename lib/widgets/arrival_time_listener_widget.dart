@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plane_alarm/cubit/flight_destination_cubit.dart';
+import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class ArrivalTimeListenerWidget extends StatelessWidget {

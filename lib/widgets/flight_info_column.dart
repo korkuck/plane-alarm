@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plane_alarm/cubit/flight_details_cubit.dart';
+import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class FlightInfoColumn extends StatelessWidget {
@@ -6,17 +9,57 @@ class FlightInfoColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ColumnItem("Callsign", ["RYR1PA", "FR704"], Icons.share),
-        ColumnItem("Date of departure", [
-          "23.05.2025",
-          "11:25",
-        ], Icons.calendar_month),
-        ColumnItem("From", ["Chopin Airport", "EPWA"], Icons.pin_drop_outlined),
-        ColumnItem("To", ["Goeteborg", "ESGG"], Icons.pin_drop_rounded),
-      ],
+    return BlocBuilder<FlightDetailsCubit, FlightDetailsState>(
+      builder: (context, state) {
+        final columnData = {
+          'Callsign': ['--'],
+          'Date of departure': ['--', '--'],
+          'From': ['--', '--'],
+          'To': ['--', '--'],
+        };
+
+        if (state is FlightDetailsError) {
+          return MyBoldText('Error: ${state.message}', color: Colors.red);
+        }
+
+        if (state is FlightDetailsLoaded) {
+          final data = state.data;
+          columnData['Callsign'] = [globalCallsign];
+          columnData['Date of departure'] = [
+            data['scheduledOutRaw'] != null
+                ? data['scheduledOutRaw'].toString().split('T')[0]
+                : 'N/A',
+            data['scheduledOutRaw'] != null
+                ? data['scheduledOutRaw']
+                    .toString()
+                    .split('T')[1]
+                    .substring(0, 5)
+                : 'N/A',
+          ];
+          columnData['From'] = [
+            data['originName'] ?? 'N/A',
+            data['originIcao'] ?? 'N/A',
+          ];
+          columnData['To'] = [
+            data['destinationName'] ?? 'N/A',
+            data['destinationIcao'] ?? 'N/A',
+          ];
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ColumnItem("Callsign", columnData['Callsign']!, Icons.share),
+            ColumnItem(
+              "Date of departure",
+              columnData['Date of departure']!,
+              Icons.calendar_month,
+            ),
+            ColumnItem("From", columnData['From']!, Icons.pin_drop_outlined),
+            ColumnItem("To", columnData['To']!, Icons.pin_drop_rounded),
+          ],
+        );
+      },
     );
   }
 }

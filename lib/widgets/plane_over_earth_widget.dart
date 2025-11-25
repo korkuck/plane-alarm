@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
+import 'package:plane_alarm/widgets/my_text.dart';
 
 class PlaneOverEarthWidget extends StatefulWidget {
   const PlaneOverEarthWidget({super.key});
@@ -42,7 +43,6 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
     const earthSvg = 'assets/earth-globe-global-svgrepo-com.svg';
     const airplaneSvg = 'assets/airplane-best.svg';
 
-    final cubit = context.read<ArrivalPlaneIndicatorCubit>();
     final double earthSize = 240;
     final double dx = 0;
     final double dy = -earthSize / 2 - 20;
@@ -87,12 +87,9 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
                   ),
                 ],
               ),
-              TextButton(
-                onPressed: () => cubit.rotateAirplane(15),
-                child: Text(
-                  '$state',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [MySmallText('$state%'), MySmallText('done')],
               ),
             ],
           );
