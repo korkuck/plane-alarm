@@ -24,7 +24,7 @@ class FlightInfoColumn extends StatelessWidget {
 
         if (state is FlightDetailsLoaded) {
           final data = state.data;
-          columnData['Callsign'] = [globalCallsign];
+          columnData['Callsign'] = [data['callsign'] ?? 'N/A'];
           columnData['Date of departure'] = [
             data['scheduledOutRaw'] != null
                 ? data['scheduledOutRaw'].toString().split('T')[0]

@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/pages/home_page.dart';
 import 'package:plane_alarm/services/aero_api_service.dart';
 import 'package:plane_alarm/theme/my_theme_data.dart';
+import 'package:plane_alarm/variables/global_variables.dart';
 
 Future<void> main() async {
   // Load .env file
@@ -21,15 +23,7 @@ Future<void> main() async {
 
   runApp(
     MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => FlightDetailsCubit(api)),
-        BlocProvider(
-          create:
-              (context) => ArrivalPlaneIndicatorCubit(
-                context.read<FlightDetailsCubit>(),
-              ),
-        ),
-      ],
+      providers: [BlocProvider(create: (_) => FlightDetailsCubit(api))],
       child: const MyApp(),
     ),
   );
@@ -40,6 +34,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<FlightDetailsCubit>().initialize("LOT3MA");
+    Timer.periodic(const Duration(minutes: globalRefreshDelayMinutes), (_) {
+      context.read<FlightDetailsCubit>().refreshCubit();
+    });
     return MaterialApp(
       title: 'Plane Alarm',
       theme: MyThemeData.theme,

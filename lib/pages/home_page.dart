@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:plane_alarm/widgets/arrival_info_widget.dart';
@@ -17,33 +16,24 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FlightDetailsCubit>().fetchFlightData(globalCallsign);
-
-    Timer.periodic(const Duration(minutes: globalRefreshDelayMinutes), (_) {
-      context.read<FlightDetailsCubit>().fetchFlightData(globalCallsign);
-    });
-
-    return BlocProvider(
-      create: (_) => ArrivalPlaneIndicatorCubit(context.read()),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plane Alarm'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        body: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(48, 40, 48, 0),
-              child: FlightInfoColumn(),
-            ),
-            const SizedBox(height: 60),
-            const PlaneOverEarthWidget(),
-            const SizedBox(height: 60),
-            const ArrivalInfoWidget(),
-          ],
-        ),
-        bottomNavigationBar: MyBottomAppBar(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plane Alarm'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(48, 40, 48, 0),
+            child: FlightInfoColumn(),
+          ),
+          const SizedBox(height: 60),
+          const PlaneOverEarthWidget(),
+          const SizedBox(height: 60),
+          const ArrivalInfoWidget(),
+        ],
+      ),
+      bottomNavigationBar: MyBottomAppBar(),
     );
   }
 }

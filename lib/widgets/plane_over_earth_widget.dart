@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:plane_alarm/cubit/arrival_plane_indicator_cubit.dart';
+import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class PlaneOverEarthWidget extends StatefulWidget {
@@ -48,9 +48,13 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
     final double dy = -earthSize / 2 - 20;
 
     return Center(
-      child: BlocBuilder<ArrivalPlaneIndicatorCubit, double>(
+      child: BlocBuilder<FlightDetailsCubit, FlightDetailsState>(
         builder: (context, state) {
-          final angleRadians = state * pi / 180;
+          double stateProgressDegrees = 0.0;
+          if (state is FlightDetailsLoaded) {
+            stateProgressDegrees = state.data['progressPercentRaw'] ?? 0.0;
+          }
+          final angleRadians = (stateProgressDegrees / 100 * 360) * pi / 180;
 
           return Column(
             children: [
@@ -89,7 +93,10 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [MySmallText('$state%'), MySmallText('done')],
+                children: [
+                  MySmallText('$stateProgressDegrees%'),
+                  MySmallText('done'),
+                ],
               ),
             ],
           );

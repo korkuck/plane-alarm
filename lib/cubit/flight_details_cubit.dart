@@ -7,7 +7,28 @@ part 'flight_details_state.dart';
 
 class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   final AeroApiService api;
+  String targetCallsign = "";
   FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
+
+  void initialize(String initialCallsign) {
+    fetchFlightData(targetCallsign = initialCallsign);
+    if (targetCallsign.isEmpty) {
+      emit(FlightDetailsError('No callsign provided'));
+    }
+  }
+
+  void refreshCubit() {
+    fetchFlightData(targetCallsign);
+  }
+
+  void setTargetCallsign(String callsign) {
+    targetCallsign = callsign;
+    fetchFlightData(targetCallsign);
+  }
+
+  void getTargetCallsign() {
+    emit(FlightDetailsInitial());
+  }
 
   /// ident: flight designator or registration (prefer ICAO designator, e.g. "UAL4" or "BAW123")
   Future<void> fetchFlightData(String ident) async {
@@ -33,13 +54,15 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
       }
 
       final fetchResult = {
+        'callsign': ident,
         'destinationName': destination['name'],
         'destinationIata': destination['code_iata'],
         'destinationIcao': destination['code_icao'],
         'originName': origin['name'],
         'originIata': origin['code_iata'],
         'originIcao': origin['code_icao'],
-        'progressPercentRaw': currentFlight['progress_percent'],
+        'progressPercentRaw':
+            (currentFlight['progress_percent'] as num?)?.toDouble() ?? 0.0,
         'scheduledOutRaw': currentFlight['scheduled_out'],
         'scheduledInRaw': currentFlight['scheduled_in'],
       };
