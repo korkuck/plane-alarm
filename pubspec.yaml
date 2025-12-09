@@ -40,6 +40,8 @@ dependencies:
   equatable: ^2.0.3
   bloc: ^8.1.4
   flutter_dotenv: ^6.0.0
+  path_provider: ^2.1.5
+  marquee: ^2.3.0
 
 
 dev_dependencies:

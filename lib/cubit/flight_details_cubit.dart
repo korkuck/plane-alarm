@@ -40,7 +40,10 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
       }
 
       // flighs moze zawierac wiele lotow (np divert), pierwszy aktualny
-      final currentFlight = flights.first as Map<String, dynamic>;
+      final currentFlight = _findOngoingFlight(flights);
+      if (currentFlight == null) {
+        return emit(FlightDetailsError('No ongoing flight found for $ident'));
+      }
 
       final destination = currentFlight['destination'] as Map<String, dynamic>?;
       if (destination == null) {
@@ -77,5 +80,42 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
       debugPrint('Error fetching flight info: $e\n$st');
       emit(FlightDetailsError(e.toString()));
     }
+  }
+
+  _findOngoingFlight(List<dynamic> flights) {
+    final now = DateTime.now().toUtc();
+
+    for (final f in flights) {
+      final flight = f as Map<String, dynamic>;
+
+      //TODO: some flights are en-route but have missing data, handle that properly
+      //TODO: handle future flights!
+      if (flight['status'].toString().toLowerCase() == 'en route') {
+        return flight;
+      }
+
+      if (flight['progress_percent'] == null) {
+        continue;
+      }
+
+      final progress = (flight['progress_percent'] as num?)?.toDouble();
+
+      // Case 1 – Actively flying (most accurate indicator)
+      if (progress != null && progress > 0 && progress < 100) return flight;
+
+      // Case 2 – Departed but not arrived yet, only for position-only flights
+      if (flight['actual_out'] != null && flight['actual_in'] == null) {
+        return flight;
+      }
+
+      // Case 3 – Fallback by scheduled time window
+      final out = DateTime.tryParse(flight['scheduled_out'] ?? '')?.toUtc();
+      final in_ = DateTime.tryParse(flight['estimated_in'] ?? '')?.toUtc();
+      if (out != null && in_ != null && now.isAfter(out) && now.isBefore(in_)) {
+        return flight;
+      }
+    }
+
+    return null; // no active flight found
   }
 }

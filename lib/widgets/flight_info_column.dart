@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:marquee/marquee.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
-import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class FlightInfoColumn extends StatelessWidget {
@@ -37,12 +37,12 @@ class FlightInfoColumn extends StatelessWidget {
                 : 'N/A',
           ];
           columnData['From'] = [
+            data['originIata'] ?? 'N/A',
             data['originName'] ?? 'N/A',
-            data['originIcao'] ?? 'N/A',
           ];
           columnData['To'] = [
+            data['destinationIata'] ?? 'N/A',
             data['destinationName'] ?? 'N/A',
-            data['destinationIcao'] ?? 'N/A',
           ];
         }
 
@@ -55,8 +55,18 @@ class FlightInfoColumn extends StatelessWidget {
               columnData['Date of departure']!,
               Icons.calendar_month,
             ),
-            ColumnItem("From", columnData['From']!, Icons.pin_drop_outlined),
-            ColumnItem("To", columnData['To']!, Icons.pin_drop_rounded),
+            ColumnItem(
+              "From",
+              columnData['From']!,
+              Icons.pin_drop_outlined,
+              shouldMarquee: true,
+            ),
+            ColumnItem(
+              "To",
+              columnData['To']!,
+              Icons.pin_drop_rounded,
+              shouldMarquee: true,
+            ),
           ],
         );
       },
@@ -68,18 +78,29 @@ class ColumnItem extends StatelessWidget {
   final String smallText;
   final List<String> boldTexts;
   final IconData icon;
+  final bool? shouldMarquee;
 
-  const ColumnItem(this.smallText, this.boldTexts, this.icon, {super.key});
+  static const double spacingWidth = 10.0;
+
+  const ColumnItem(
+    this.smallText,
+    this.boldTexts,
+    this.icon, {
+    this.shouldMarquee = false,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [MySmallText(smallText), _buildBoldTextRow()],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [MySmallText(smallText), _buildBoldTextRow()],
+          ),
         ),
-        const Spacer(),
+        SizedBox(width: spacingWidth),
         Icon(icon, size: 36),
       ],
     );
@@ -87,16 +108,33 @@ class ColumnItem extends StatelessWidget {
 
   Row _buildBoldTextRow() {
     final List<Widget> widgets = [];
-
-    for (int i = 0; i < boldTexts.length; i++) {
-      if (i > 0) {
-        widgets.add(const SizedBox(width: 10));
-        widgets.add(const MyBoldText('|'));
-        widgets.add(const SizedBox(width: 10));
-      }
+    for (int i = 0; i < boldTexts.length - 1; i++) {
       widgets.add(MyBoldText(boldTexts[i]));
+      widgets.add(const SizedBox(width: spacingWidth));
+      widgets.add(const MyBoldText('|'));
+      widgets.add(const SizedBox(width: spacingWidth));
     }
-
+    widgets.add(
+      Expanded(
+        child:
+            shouldMarquee == false
+                ? MyBoldText(boldTexts[boldTexts.length - 1])
+                : Align(
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    //TODO: Adjust height, for whatever reason ROW height is fontsize + 10
+                    height: MyBoldText.defaultFontSize + 10,
+                    child: Marquee(
+                      text: '${boldTexts[boldTexts.length - 1]} + ',
+                      style: MyBoldText.defaultStyle,
+                      velocity: 20,
+                      startPadding: spacingWidth,
+                      startAfter: Duration(seconds: 2),
+                    ),
+                  ),
+                ),
+      ),
+    );
     return Row(children: widgets);
   }
 }

@@ -1,9 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plane_alarm/cubit/flight_details_cubit.dart';
-import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:plane_alarm/widgets/arrival_info_widget.dart';
 import 'package:plane_alarm/widgets/flight_info_column.dart';
 import 'package:plane_alarm/widgets/my_bottom_app_bar.dart';
@@ -24,7 +19,7 @@ class MyHomePage extends StatelessWidget {
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.fromLTRB(48, 40, 48, 0),
+            padding: EdgeInsets.fromLTRB(36, 32, 36, 0),
             child: FlightInfoColumn(),
           ),
           const SizedBox(height: 60),
