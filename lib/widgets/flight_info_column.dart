@@ -11,6 +11,8 @@ class FlightInfoColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FlightDetailsCubit, FlightDetailsState>(
       builder: (context, state) {
+        bool isDiverted = false;
+
         final columnData = {
           'Callsign': ['--'],
           'Date of departure': ['--', '--'],
@@ -25,17 +27,7 @@ class FlightInfoColumn extends StatelessWidget {
         if (state is FlightDetailsLoaded) {
           final data = state.data;
           columnData['Callsign'] = [data['callsign'] ?? 'N/A'];
-          columnData['Date of departure'] = [
-            data['scheduledOutRaw'] != null
-                ? data['scheduledOutRaw'].toString().split('T')[0]
-                : 'N/A',
-            data['scheduledOutRaw'] != null
-                ? data['scheduledOutRaw']
-                    .toString()
-                    .split('T')[1]
-                    .substring(0, 5)
-                : 'N/A',
-          ];
+          columnData['Date of departure'] = _assignDepartureDate(data);
           columnData['From'] = [
             data['originIata'] ?? 'N/A',
             data['originName'] ?? 'N/A',
@@ -44,6 +36,7 @@ class FlightInfoColumn extends StatelessWidget {
             data['destinationIata'] ?? 'N/A',
             data['destinationName'] ?? 'N/A',
           ];
+          isDiverted = data['diverted'] ?? false;
         }
 
         return Column(
@@ -66,11 +59,34 @@ class FlightInfoColumn extends StatelessWidget {
               columnData['To']!,
               Icons.pin_drop_rounded,
               shouldMarquee: true,
+              isDiverted: isDiverted,
             ),
           ],
         );
       },
     );
+  }
+
+  String _formatDate(dynamic rawDate) => rawDate.toString().split('T')[0];
+  String _formatTime(dynamic rawDate) =>
+      rawDate.toString().split('T')[1].substring(0, 5);
+
+  List<String> _assignDepartureDate(Map<String, dynamic> data) {
+    final actualOut = data['actualOutRaw'];
+    final scheduledOut = data['scheduledOutRaw'];
+    if (actualOut is String && actualOut.isNotEmpty) {
+      return [
+        _formatDate(data['actualOutRaw']),
+        _formatTime(data['actualOutRaw']),
+      ];
+    }
+    if (scheduledOut is String && scheduledOut.isNotEmpty) {
+      return [
+        _formatDate(data['scheduledOutRaw']),
+        _formatTime(data['scheduledOutRaw']),
+      ];
+    }
+    return ['N/A', 'N/A'];
   }
 }
 
@@ -78,7 +94,8 @@ class ColumnItem extends StatelessWidget {
   final String smallText;
   final List<String> boldTexts;
   final IconData icon;
-  final bool? shouldMarquee;
+  final bool shouldMarquee;
+  final bool isDiverted;
 
   static const double spacingWidth = 10.0;
 
@@ -87,6 +104,7 @@ class ColumnItem extends StatelessWidget {
     this.boldTexts,
     this.icon, {
     this.shouldMarquee = false,
+    this.isDiverted = false,
     super.key,
   });
 
@@ -97,44 +115,51 @@ class ColumnItem extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [MySmallText(smallText), _buildBoldTextRow()],
+            children: [MySmallText(smallText), _buildBoldTextRow(isDiverted)],
           ),
         ),
         SizedBox(width: spacingWidth),
-        Icon(icon, size: 36),
+        Icon(icon, size: 36, color: isDiverted ? Colors.red : Colors.black),
       ],
     );
   }
 
-  Row _buildBoldTextRow() {
+  Row _buildBoldTextRow(bool isDiverted) {
     final List<Widget> widgets = [];
     for (int i = 0; i < boldTexts.length - 1; i++) {
-      widgets.add(MyBoldText(boldTexts[i]));
+      widgets.add(_chooseText(boldTexts[i], isDiverted));
       widgets.add(const SizedBox(width: spacingWidth));
-      widgets.add(const MyBoldText('|'));
+      widgets.add(_chooseText('|', isDiverted));
       widgets.add(const SizedBox(width: spacingWidth));
     }
     widgets.add(
       Expanded(
         child:
             shouldMarquee == false
-                ? MyBoldText(boldTexts[boldTexts.length - 1])
-                : Align(
-                  alignment: Alignment.topLeft,
-                  child: SizedBox(
-                    //TODO: Adjust height, for whatever reason ROW height is fontsize + 10
-                    height: MyBoldText.defaultFontSize + 10,
-                    child: Marquee(
-                      text: '${boldTexts[boldTexts.length - 1]} + ',
-                      style: MyBoldText.defaultStyle,
-                      velocity: 20,
-                      startPadding: spacingWidth,
-                      startAfter: Duration(seconds: 2),
-                    ),
+                ? _chooseText(boldTexts.last, isDiverted)
+                : SizedBox(
+                  height:
+                      MyBoldText.defaultFontSize * 1.3, // Approx line height
+                  child: Marquee(
+                    text: '${boldTexts.last} + ',
+                    style:
+                        isDiverted
+                            ? MyBoldTextAlert.defaultStyle
+                            : MyBoldText.defaultStyle,
+                    velocity: 20,
+                    startPadding: 0,
+                    startAfter: Duration(seconds: 2),
                   ),
                 ),
       ),
     );
     return Row(children: widgets);
+  }
+
+  Widget _chooseText(String text, bool isDiverted) {
+    if (isDiverted) {
+      return MyBoldTextAlert(text);
+    }
+    return MyBoldText(text);
   }
 }

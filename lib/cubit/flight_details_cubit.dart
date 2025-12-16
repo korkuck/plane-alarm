@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../services/aero_api_service.dart';
 
 part 'flight_details_state.dart';
@@ -10,10 +10,14 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   String targetCallsign = "";
   FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
 
-  void initialize(String initialCallsign) {
-    fetchFlightData(targetCallsign = initialCallsign);
+  void initialize() {
+    if (kDebugMode) {
+      targetCallsign = "LOT6ED"; // Debug callsign for testing
+    }
     if (targetCallsign.isEmpty) {
       emit(FlightDetailsError('No callsign provided'));
+    } else {
+      fetchFlightData(targetCallsign, firstDownload: true);
     }
   }
 
@@ -23,18 +27,47 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   void setTargetCallsign(String callsign) {
     targetCallsign = callsign;
-    fetchFlightData(targetCallsign);
+    fetchFlightData(targetCallsign, firstDownload: true);
   }
 
   void getTargetCallsign() {
     emit(FlightDetailsInitial());
   }
 
+  void manualDelay(int minutes) {
+    if (state is FlightDetailsLoaded) {
+      final currentData = (state as FlightDetailsLoaded).data;
+      emit(FlightDetailsLoading());
+      final updatedData = Map<String, dynamic>.from(currentData);
+      updatedData['arrivalDelayMinutes'] =
+          (currentData['arrivalDelayMinutes'] as int) + minutes;
+      emit(FlightDetailsLoaded(updatedData));
+    }
+  }
+
+  void manualChangeDestination(String newIata, String newName) {
+    if (state is FlightDetailsLoaded) {
+      final currentData = (state as FlightDetailsLoaded).data;
+      emit(FlightDetailsLoading());
+      final updatedData = Map<String, dynamic>.from(currentData);
+      updatedData['destinationIata'] = newIata;
+      updatedData['destinationName'] = newName;
+      updatedData['diverted'] = true;
+      emit(FlightDetailsLoaded(updatedData));
+    }
+  }
+
   /// ident: flight designator or registration (prefer ICAO designator, e.g. "UAL4" or "BAW123")
-  Future<void> fetchFlightData(String ident) async {
+  Future<void> fetchFlightData(
+    String ident, {
+    bool firstDownload = false,
+  }) async {
     try {
       emit(FlightDetailsLoading());
-      final flights = await api.fetchFlightsByIdent(ident);
+      final flights = await api.fetchFlightsByIdent(
+        ident,
+        firstDownload: firstDownload,
+      );
       if (flights.isEmpty) {
         return emit(FlightDetailsError('No flights found for $ident'));
       }
@@ -55,6 +88,8 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
         emit(FlightDetailsError('Origin not available for $ident'));
         return;
       }
+      final arrivalDelayMinutes =
+          (currentFlight['arrival_delay'] as num?)?.toInt() ?? 0;
 
       final fetchResult = {
         'callsign': ident,
@@ -68,6 +103,12 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
             (currentFlight['progress_percent'] as num?)?.toDouble() ?? 0.0,
         'scheduledOutRaw': currentFlight['scheduled_out'],
         'scheduledInRaw': currentFlight['scheduled_in'],
+        'estimatedInRaw': currentFlight['estimated_in'],
+        'actualOutRaw': currentFlight['actual_out'],
+        'arrivalDelayMinutes':
+            arrivalDelayMinutes > 0 ? arrivalDelayMinutes : 0,
+        'diverted': currentFlight['diverted'] ?? false,
+        'emergency': false,
       };
 
       // Print to VSCode console

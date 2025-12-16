@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FlightDetailsCubit>().initialize("LOT336");
+    context.read<FlightDetailsCubit>().initialize();
     Timer.periodic(const Duration(minutes: globalRefreshDelayMinutes), (_) {
       context.read<FlightDetailsCubit>().refreshCubit();
     });

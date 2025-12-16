@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plane_alarm/widgets/arrival_info_widget.dart';
 import 'package:plane_alarm/widgets/flight_info_column.dart';
 import 'package:plane_alarm/widgets/my_bottom_app_bar.dart';
+import 'package:plane_alarm/widgets/my_top_app_bar.dart';
 import 'package:plane_alarm/widgets/plane_over_earth_widget.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -12,10 +13,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plane Alarm'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: MyTopAppBar(),
       body: Column(
         children: [
           Container(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:plane_alarm/variables/global_variables.dart';
 
 class AeroApiService {
   static const _base = 'https://aeroapi.flightaware.com/aeroapi';
@@ -12,8 +13,12 @@ class AeroApiService {
 
   /// Fetch flights by ident (registration, ICAO ident, or fa_flight_id)
   /// Returns the parsed JSON for the flights array (or throws).
-  Future<List<dynamic>> fetchFlightsByIdent(String ident) async {
-    if (kDebugMode) {
+  Future<List<dynamic>> fetchFlightsByIdent(
+    String ident, {
+    bool firstDownload = false,
+  }) async {
+    if (firstDownload) clearCache();
+    if (kDebugMode || globalUseOfflineData) {
       debugPrint('Checking flight backups for ident: $ident');
       final backupFile = await _loadBackup(ident);
       if (backupFile != null && backupFile.isNotEmpty) {
@@ -49,7 +54,7 @@ class AeroApiService {
     final json = jsonDecode(resp.body) as Map<String, dynamic>;
     final flights = json['flights'] as List<dynamic>? ?? [];
 
-    if (kDebugMode) await _saveBackup(ident, flights);
+    if (kDebugMode || globalUseOfflineData) await _saveBackup(ident, flights);
 
     return flights;
   }
@@ -90,6 +95,21 @@ class AeroApiService {
       debugPrint("✅ Backup saved for $ident, at location ${file.path}");
     } catch (e) {
       debugPrint("⚠ Could not save backup for $ident: $e");
+    }
+  }
+
+  Future<void> clearCache() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final files = dir.listSync().whereType<File>();
+      for (final file in files) {
+        if (file.path.contains('flights_local_backup_')) {
+          await file.delete();
+          debugPrint("🗑 Deleted cache file: ${file.path}");
+        }
+      }
+    } catch (e) {
+      debugPrint("⚠ Could not clear cache: $e");
     }
   }
 
