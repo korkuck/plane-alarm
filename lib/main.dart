@@ -6,10 +6,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/pages/home_page.dart';
 import 'package:plane_alarm/services/aero_api_service.dart';
+import 'package:plane_alarm/services/notification_service.dart';
 import 'package:plane_alarm/theme/my_theme_data.dart';
 import 'package:plane_alarm/variables/global_variables.dart';
+import 'package:timezone/data/latest_all.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  initializeTimeZones();
+  await initializeNotifications();
   // Load .env file
   await dotenv.load(fileName: ".env");
 
@@ -38,11 +43,20 @@ class MyApp extends StatelessWidget {
     Timer.periodic(const Duration(minutes: globalRefreshDelayMinutes), (_) {
       context.read<FlightDetailsCubit>().refreshCubit();
     });
-    return MaterialApp(
-      title: 'Plane Alarm',
-      theme: MyThemeData.theme,
-      home: const MyHomePage(title: 'Plane Alarm'),
-      debugShowCheckedModeBanner: false,
+
+    return BlocListener<FlightDetailsCubit, FlightDetailsState>(
+      listener: (context, state) {
+        if (state is FlightDetailsLoaded) {
+          final progress = (state.data['progressPercentRaw'] as double).round();
+          showProgressStatusBarNotification(progress);
+        }
+      },
+      child: MaterialApp(
+        title: 'Plane Alarm',
+        theme: MyThemeData.theme,
+        home: const MyHomePage(title: 'Plane Alarm'),
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

@@ -67,25 +67,22 @@ class FlightInfoColumn extends StatelessWidget {
     );
   }
 
-  String _formatDate(dynamic rawDate) => rawDate.toString().split('T')[0];
-  String _formatTime(dynamic rawDate) =>
-      rawDate.toString().split('T')[1].substring(0, 5);
+  String _formatDate(DateTime rawDate) => rawDate.toString().split(' ')[0];
+  String _formatTime(DateTime rawDate) =>
+      rawDate.toString().split(' ')[1].substring(0, 5);
 
   List<String> _assignDepartureDate(Map<String, dynamic> data) {
-    final actualOut = data['actualOutRaw'];
-    final scheduledOut = data['scheduledOutRaw'];
-    if (actualOut is String && actualOut.isNotEmpty) {
-      return [
-        _formatDate(data['actualOutRaw']),
-        _formatTime(data['actualOutRaw']),
-      ];
+    final actualOutLocal = data['actualOutLocal'];
+    final scheduledOutLocal = data['scheduledOutLocal'];
+
+    if (actualOutLocal != null) {
+      return [_formatDate(actualOutLocal), _formatTime(actualOutLocal)];
     }
-    if (scheduledOut is String && scheduledOut.isNotEmpty) {
-      return [
-        _formatDate(data['scheduledOutRaw']),
-        _formatTime(data['scheduledOutRaw']),
-      ];
+
+    if (scheduledOutLocal != null) {
+      return [_formatDate(scheduledOutLocal), _formatTime(scheduledOutLocal)];
     }
+
     return ['N/A', 'N/A'];
   }
 }

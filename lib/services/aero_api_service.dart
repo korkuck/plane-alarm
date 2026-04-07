@@ -54,14 +54,17 @@ class AeroApiService {
     final json = jsonDecode(resp.body) as Map<String, dynamic>;
     final flights = json['flights'] as List<dynamic>? ?? [];
 
-    if (kDebugMode || globalUseOfflineData) await _saveBackup(ident, flights);
+    if (kDebugMode || globalUseOfflineData) {
+      await _saveBackup(ident, flights);
+      debugPrint(jsonEncode(flights));
+    }
 
     return flights;
   }
 
   Future<File> _backupFile(String ident) async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File("${dir.path}/flights_local_backup_$ident.json");
+    final phoneDir = await getApplicationDocumentsDirectory();
+    return File("${phoneDir.path}/flights_local_backup_$ident.json");
   }
 
   Future<List<dynamic>?> _loadBackup(String ident) async {

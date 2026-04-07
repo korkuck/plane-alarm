@@ -25,57 +25,56 @@ class ArrivalInfoWidget extends StatelessWidget {
         }
 
         if (state is FlightDetailsLoaded) {
-          final arrivalDateRaw = state.data['estimatedInRaw'] as String?;
+          final arrivalDateLocal =
+              state.data['estimatedInLocal'] as DateTime? ??
+              state.data['scheduledInLocal'] as DateTime?;
+          if (arrivalDateLocal == null) {
+            return const MyBoldText('Arrival time not available');
+          }
           final isDelayed = _checkIfDelayed(
             state.data['arrivalDelayMinutes'] as int,
           );
-          if (arrivalDateRaw != null) {
-            final arrivalDateTime = DateTime.parse(arrivalDateRaw).toLocal();
-            final formattedTime =
-                '${arrivalDateTime.hour.toString().padLeft(2, '0')}:${arrivalDateTime.minute.toString().padLeft(2, '0')}';
-            return Stack(
-              children: [
-                if (isDelayed)
-                  Positioned(
-                    right: 60,
-                    bottom: 32,
-                    child: DelayWidget(
-                      state.data['arrivalDelayMinutes'] as int,
+          final formattedTime =
+              '${arrivalDateLocal.hour.toString().padLeft(2, '0')}:${arrivalDateLocal.minute.toString().padLeft(2, '0')}';
+          return Stack(
+            children: [
+              if (isDelayed)
+                Positioned(
+                  right: 60,
+                  bottom: 32,
+                  child: DelayWidget(state.data['arrivalDelayMinutes'] as int),
+                )
+              else
+                Container(),
+              Column(
+                children: [
+                  const MySmallText('Arriving at'),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Center(
+                          child:
+                              isDelayed
+                                  ? MyBoldTextAlert(formattedTime.toString())
+                                  : MyBoldText(formattedTime.toString()),
+                        ),
+                        Positioned(
+                          left: 40,
+                          child: Icon(Icons.alarm, size: 40),
+                        ),
+                      ],
                     ),
-                  )
-                else
-                  Container(),
-                Column(
-                  children: [
-                    const MySmallText('Arriving at'),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Center(
-                            child:
-                                isDelayed
-                                    ? MyBoldTextAlert(formattedTime.toString())
-                                    : MyBoldText(formattedTime.toString()),
-                          ),
-                          Positioned(
-                            left: 40,
-                            child: Icon(Icons.alarm, size: 40),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          }
-
-          return MyBoldText('N/A');
+                  ),
+                ],
+              ),
+            ],
+          );
         }
-        return const MyBoldText('No flight data provided');
+
+        return MyBoldText('N/A');
       },
     );
   }

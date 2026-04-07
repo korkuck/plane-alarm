@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:plane_alarm/services/notification_service.dart';
+import 'package:timezone/timezone.dart';
 import '../services/aero_api_service.dart';
 
 part 'flight_details_state.dart';
@@ -12,7 +14,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   void initialize() {
     if (kDebugMode) {
-      targetCallsign = "LOT6ED"; // Debug callsign for testing
+      targetCallsign = "SXS5XB"; // Debug callsign for testing
     }
     if (targetCallsign.isEmpty) {
       emit(FlightDetailsError('No callsign provided'));
@@ -41,6 +43,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
       final updatedData = Map<String, dynamic>.from(currentData);
       updatedData['arrivalDelayMinutes'] =
           (currentData['arrivalDelayMinutes'] as int) + minutes;
+      pushNotification('Flight was delayed by $minutes minutes');
       emit(FlightDetailsLoaded(updatedData));
     }
   }
@@ -53,8 +56,17 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
       updatedData['destinationIata'] = newIata;
       updatedData['destinationName'] = newName;
       updatedData['diverted'] = true;
+      pushNotification('URGENT: Flight was diverted to $newName ($newIata)');
       emit(FlightDetailsLoaded(updatedData));
     }
+  }
+
+  double getProgressPercent() {
+    if (state is FlightDetailsLoaded) {
+      final data = (state as FlightDetailsLoaded).data;
+      return (data['progressPercentRaw'] as double?) ?? 0.0;
+    }
+    return 0;
   }
 
   /// ident: flight designator or registration (prefer ICAO designator, e.g. "UAL4" or "BAW123")
@@ -88,38 +100,63 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
         emit(FlightDetailsError('Origin not available for $ident'));
         return;
       }
-      final arrivalDelayMinutes =
-          (currentFlight['arrival_delay'] as num?)?.toInt() ?? 0;
+      final arrivalDelayMinutes = currentFlight['arrival_delay'] as int? ?? 0;
 
       final fetchResult = {
-        'callsign': ident,
-        'destinationName': destination['name'],
-        'destinationIata': destination['code_iata'],
-        'destinationIcao': destination['code_icao'],
-        'originName': origin['name'],
-        'originIata': origin['code_iata'],
-        'originIcao': origin['code_icao'],
+        'callsign': ident as String?,
+        'destinationName': destination['name'] as String?,
+        'destinationIata': destination['code_iata'] as String?,
+        'destinationIcao': destination['code_icao'] as String?,
+        'destinationTimezone': destination['timezone'] as String?,
+        'originName': origin['name'] as String?,
+        'originIata': origin['code_iata'] as String?,
+        'originIcao': origin['code_icao'] as String?,
+        'originTimezone': origin['timezone'] as String?,
         'progressPercentRaw':
-            (currentFlight['progress_percent'] as num?)?.toDouble() ?? 0.0,
-        'scheduledOutRaw': currentFlight['scheduled_out'],
-        'scheduledInRaw': currentFlight['scheduled_in'],
-        'estimatedInRaw': currentFlight['estimated_in'],
-        'actualOutRaw': currentFlight['actual_out'],
+            (currentFlight['progress_percent'] as int?)?.toDouble() ?? 0.0,
+        'scheduledOutRaw': currentFlight['scheduled_out'] as String?,
+        'scheduledInRaw': currentFlight['scheduled_in'] as String?,
+        'estimatedInRaw': currentFlight['estimated_in'] as String?,
+        'actualOutRaw': currentFlight['actual_out'] as String?,
         'arrivalDelayMinutes':
             arrivalDelayMinutes > 0 ? arrivalDelayMinutes : 0,
-        'diverted': currentFlight['diverted'] ?? false,
+        'diverted': currentFlight['diverted'] as bool? ?? false,
         'emergency': false,
+        'scheduledOutLocal': _fromUTCtoLocal(
+          currentFlight['scheduled_out'],
+          origin['timezone'],
+        ),
+        'actualOutLocal': _fromUTCtoLocal(
+          currentFlight['actual_out'],
+          origin['timezone'],
+        ),
+        'scheduledInLocal': _fromUTCtoLocal(
+          currentFlight['scheduled_in'],
+          destination['timezone'],
+        ),
+        'estimatedInLocal': _fromUTCtoLocal(
+          currentFlight['estimated_in'],
+          destination['timezone'],
+        ),
       };
-
-      // Print to VSCode console
-      debugPrint(
-        'Flight $ident destination: ${fetchResult['destinationName']} | origin: ${fetchResult['originName']}',
-      );
 
       emit(FlightDetailsLoaded(fetchResult));
     } catch (e, st) {
       debugPrint('Error fetching flight info: $e\n$st');
       emit(FlightDetailsError(e.toString()));
+    }
+  }
+
+  DateTime? _fromUTCtoLocal(String? utcDateRaw, String? timezone) {
+    final utcDate = DateTime.tryParse(utcDateRaw ?? '');
+    if (utcDate == null) return null;
+    if (timezone == null) return utcDate;
+    try {
+      final location = getLocation(timezone);
+      return TZDateTime.from(utcDate, location);
+    } catch (e) {
+      debugPrint('Error converting time: $e');
+      return utcDate;
     }
   }
 
