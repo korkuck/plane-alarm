@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -39,7 +40,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FlightDetailsCubit>().initialize();
+    context.read<FlightDetailsCubit>().initialize(
+      kDebugMode == true ? globalInitialCallsign : "",
+    );
     Timer.periodic(const Duration(minutes: globalRefreshDelayMinutes), (_) {
       context.read<FlightDetailsCubit>().refreshCubit();
     });
@@ -47,7 +50,7 @@ class MyApp extends StatelessWidget {
     return BlocListener<FlightDetailsCubit, FlightDetailsState>(
       listener: (context, state) {
         if (state is FlightDetailsLoaded) {
-          final progress = (state.data['progressPercentRaw'] as double).round();
+          final progress = (state.flightDetails.progressPercentRaw).round();
           showProgressStatusBarNotification(progress);
         }
       },

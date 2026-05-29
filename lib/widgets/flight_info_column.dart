@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:marquee/marquee.dart';
+import 'package:plane_alarm/classes/flight_details.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
@@ -25,18 +26,18 @@ class FlightInfoColumn extends StatelessWidget {
         }
 
         if (state is FlightDetailsLoaded) {
-          final data = state.data;
-          columnData['Callsign'] = [data['callsign'] ?? 'N/A'];
+          final data = state.flightDetails;
+          columnData['Callsign'] = [data.callsign ?? 'N/A'];
           columnData['Date of departure'] = _assignDepartureDate(data);
           columnData['From'] = [
-            data['originIata'] ?? 'N/A',
-            data['originName'] ?? 'N/A',
+            data.originIata ?? 'N/A',
+            data.originName ?? 'N/A',
           ];
           columnData['To'] = [
-            data['destinationIata'] ?? 'N/A',
-            data['destinationName'] ?? 'N/A',
+            data.destinationIata ?? 'N/A',
+            data.destinationName ?? 'N/A',
           ];
-          isDiverted = data['diverted'] ?? false;
+          isDiverted = data.diverted ?? false;
         }
 
         return Column(
@@ -71,9 +72,9 @@ class FlightInfoColumn extends StatelessWidget {
   String _formatTime(DateTime rawDate) =>
       rawDate.toString().split(' ')[1].substring(0, 5);
 
-  List<String> _assignDepartureDate(Map<String, dynamic> data) {
-    final actualOutLocal = data['actualOutLocal'];
-    final scheduledOutLocal = data['scheduledOutLocal'];
+  List<String> _assignDepartureDate(FlightDetails data) {
+    final actualOutLocal = data.actualOutLocal;
+    final scheduledOutLocal = data.scheduledOutLocal;
 
     if (actualOutLocal != null) {
       return [_formatDate(actualOutLocal), _formatTime(actualOutLocal)];

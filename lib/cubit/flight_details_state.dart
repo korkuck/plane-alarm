@@ -10,10 +10,10 @@ class FlightDetailsInitial extends FlightDetailsState {}
 class FlightDetailsLoading extends FlightDetailsState {}
 
 class FlightDetailsLoaded extends FlightDetailsState {
-  final Map<String, dynamic> data;
-  FlightDetailsLoaded(this.data);
+  final FlightDetails flightDetails;
+  FlightDetailsLoaded(this.flightDetails);
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [flightDetails];
 }
 
 class FlightDetailsError extends FlightDetailsState {

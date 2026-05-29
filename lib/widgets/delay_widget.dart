@@ -28,7 +28,7 @@ class DelayWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Center(child: MySmallTextAlert('DELAY +$delayMinutes min')),
+      child: Center(child: MySmallTextAlert('$delayMinutes min delay')),
     );
   }
 }

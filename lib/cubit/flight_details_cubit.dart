@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:plane_alarm/classes/flight_details.dart';
 import 'package:plane_alarm/services/notification_service.dart';
 import 'package:timezone/timezone.dart';
 import '../services/aero_api_service.dart';
@@ -12,10 +13,9 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   String targetCallsign = "";
   FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
 
-  void initialize() {
-    if (kDebugMode) {
-      targetCallsign = "SXS5XB"; // Debug callsign for testing
-    }
+  void initialize(String initialCallsign) {
+    // Debug callsign for testing
+    targetCallsign = initialCallsign;
     if (targetCallsign.isEmpty) {
       emit(FlightDetailsError('No callsign provided'));
     } else {
@@ -38,33 +38,35 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   void manualDelay(int minutes) {
     if (state is FlightDetailsLoaded) {
-      final currentData = (state as FlightDetailsLoaded).data;
+      final currentFlightDetails = (state as FlightDetailsLoaded).flightDetails;
       emit(FlightDetailsLoading());
-      final updatedData = Map<String, dynamic>.from(currentData);
-      updatedData['arrivalDelayMinutes'] =
-          (currentData['arrivalDelayMinutes'] as int) + minutes;
+      final updatedFlightDetails = currentFlightDetails.copyWith(
+        arrivalDelayMinutes:
+            (currentFlightDetails.arrivalDelayMinutes ?? 0) + minutes,
+      );
       pushNotification('Flight was delayed by $minutes minutes');
-      emit(FlightDetailsLoaded(updatedData));
+      emit(FlightDetailsLoaded(updatedFlightDetails));
     }
   }
 
   void manualChangeDestination(String newIata, String newName) {
     if (state is FlightDetailsLoaded) {
-      final currentData = (state as FlightDetailsLoaded).data;
+      final currentFlightDetails = (state as FlightDetailsLoaded).flightDetails;
       emit(FlightDetailsLoading());
-      final updatedData = Map<String, dynamic>.from(currentData);
-      updatedData['destinationIata'] = newIata;
-      updatedData['destinationName'] = newName;
-      updatedData['diverted'] = true;
+      final updatedFlightDetails = currentFlightDetails.copyWith(
+        destinationIata: newIata,
+        destinationName: newName,
+        diverted: true,
+      );
       pushNotification('URGENT: Flight was diverted to $newName ($newIata)');
-      emit(FlightDetailsLoaded(updatedData));
+      emit(FlightDetailsLoaded(updatedFlightDetails));
     }
   }
 
   double getProgressPercent() {
     if (state is FlightDetailsLoaded) {
-      final data = (state as FlightDetailsLoaded).data;
-      return (data['progressPercentRaw'] as double?) ?? 0.0;
+      final flightDetails = (state as FlightDetailsLoaded).flightDetails;
+      return flightDetails.progressPercentRaw;
     }
     return 0;
   }
@@ -100,9 +102,10 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
         emit(FlightDetailsError('Origin not available for $ident'));
         return;
       }
-      final arrivalDelayMinutes = currentFlight['arrival_delay'] as int? ?? 0;
+      final arrivalDelaySeconds = currentFlight['arrival_delay'] as int? ?? 0;
+      final arrivalDelayMinutes = arrivalDelaySeconds ~/ 60;
 
-      final fetchResult = {
+      final fetchResultJson = {
         'callsign': ident as String?,
         'destinationName': destination['name'] as String?,
         'destinationIata': destination['code_iata'] as String?,
@@ -140,7 +143,10 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
         ),
       };
 
-      emit(FlightDetailsLoaded(fetchResult));
+      final flightDetails = FlightDetails().jsonToFlightDetails(
+        fetchResultJson,
+      );
+      emit(FlightDetailsLoaded(flightDetails));
     } catch (e, st) {
       debugPrint('Error fetching flight info: $e\n$st');
       emit(FlightDetailsError(e.toString()));
@@ -168,7 +174,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
       //TODO: some flights are en-route but have missing data, handle that properly
       //TODO: handle future flights!
-      if (flight['status'].toString().toLowerCase() == 'en route') {
+      if (flight['status'].toString().toLowerCase().contains('en route')) {
         return flight;
       }
 
@@ -178,7 +184,6 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
       final progress = (flight['progress_percent'] as num?)?.toDouble();
 
-      // Case 1 – Actively flying (most accurate indicator)
       if (progress != null && progress > 0 && progress < 100) return flight;
 
       // Case 2 – Departed but not arrived yet, only for position-only flights

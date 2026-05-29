@@ -26,13 +26,13 @@ class ArrivalInfoWidget extends StatelessWidget {
 
         if (state is FlightDetailsLoaded) {
           final arrivalDateLocal =
-              state.data['estimatedInLocal'] as DateTime? ??
-              state.data['scheduledInLocal'] as DateTime?;
+              state.flightDetails.estimatedInLocal ??
+              state.flightDetails.scheduledInLocal;
           if (arrivalDateLocal == null) {
             return const MyBoldText('Arrival time not available');
           }
           final isDelayed = _checkIfDelayed(
-            state.data['arrivalDelayMinutes'] as int,
+            state.flightDetails.arrivalDelayMinutes ?? 0,
           );
           final formattedTime =
               '${arrivalDateLocal.hour.toString().padLeft(2, '0')}:${arrivalDateLocal.minute.toString().padLeft(2, '0')}';
@@ -42,7 +42,9 @@ class ArrivalInfoWidget extends StatelessWidget {
                 Positioned(
                   right: 60,
                   bottom: 32,
-                  child: DelayWidget(state.data['arrivalDelayMinutes'] as int),
+                  child: DelayWidget(
+                    state.flightDetails.arrivalDelayMinutes ?? 0,
+                  ),
                 )
               else
                 Container(),

@@ -14,15 +14,14 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyTopAppBar(),
-      body: Column(
+      body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           Container(
-            padding: EdgeInsets.fromLTRB(36, 32, 36, 0),
+            padding: const EdgeInsets.fromLTRB(36, 16, 36, 0),
             child: FlightInfoColumn(),
           ),
-          const SizedBox(height: 60),
           const PlaneOverEarthWidget(),
-          const SizedBox(height: 60),
           const ArrivalInfoWidget(),
         ],
       ),
