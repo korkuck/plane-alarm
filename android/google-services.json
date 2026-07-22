@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "230259228697",
+    "project_id": "plane-alarm-be",
+    "storage_bucket": "plane-alarm-be.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230259228697:android:31cc2ea0776dfa6f36aa88",
+        "android_client_info": {
+          "package_name": "com.example.plane_alarm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsLzKJkWMwvssrjaUH-d5ED0DthZ6hnns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

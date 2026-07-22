@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class DebugOptionsPopup extends StatelessWidget {
-  const DebugOptionsPopup({super.key});
+  final FlightDetailsCubit flightDetailsCubit;
+
+  const DebugOptionsPopup({super.key, required this.flightDetailsCubit});
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +19,13 @@ class DebugOptionsPopup extends StatelessWidget {
             _item(
               context,
               'Delay +20 min',
-              () => context.read<FlightDetailsCubit>().manualDelay(20),
+              () => flightDetailsCubit.manualDelay(20),
             ),
             _item(
               context,
               'Change destination to EPKT',
-              () => context.read<FlightDetailsCubit>().manualChangeDestination(
-                'KTW',
-                'Katowice',
-              ),
+              () =>
+                  flightDetailsCubit.manualChangeDestination('KTW', 'Katowice'),
             ),
             _item(context, 'Induce emergency', () {}),
           ],

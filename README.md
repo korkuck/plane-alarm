@@ -1,6 +1,6 @@
 # plane_alarm
 
-A new Flutter project.
+Flutter based Android app using Aeroapi to follow single in-flight aircraft.
 
 ## Getting Started
 

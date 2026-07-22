@@ -145,4 +145,8 @@ class FlightDetails {
       'estimatedInLocal': estimatedInLocal?.toIso8601String(),
     };
   }
+
+  Map<String, dynamic> toJsonCallsign() {
+    return {'callsign': callsign};
+  }
 }

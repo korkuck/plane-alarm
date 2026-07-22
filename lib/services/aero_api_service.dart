@@ -116,5 +116,25 @@ class AeroApiService {
     }
   }
 
+  Future<bool> isApiKeyValid() async {
+    //TODO: this call doesnt seem to work, I ve put back apikey to .env, remove before checking
+    final resp = await http.get(
+      Uri.parse('$_base/account/usage'),
+      headers: {'x-apikey': apiKey, 'Accept': 'application/json'},
+    );
+
+    if (resp.statusCode == 200) {
+      debugPrint('API key validation successful.');
+    } else if (resp.statusCode == 401 || resp.statusCode == 403) {
+      debugPrint('API key validation failed: ${resp.statusCode} ${resp.body}');
+      return false;
+    }
+
+    debugPrint(
+      'API key validation returned unexpected status: ${resp.statusCode} ${resp.body}',
+    );
+    return true;
+  }
+
   //TODO: CLEAR CACHED DATA ON NEW CALLSIGN SEARCHED.
 }

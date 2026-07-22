@@ -1,35 +1,23 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:plane_alarm/cubit/api_key_cubit.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
-import 'package:plane_alarm/pages/home_page.dart';
-import 'package:plane_alarm/services/aero_api_service.dart';
+import 'package:plane_alarm/pages/input_api_key_page.dart';
 import 'package:plane_alarm/services/notification_service.dart';
 import 'package:plane_alarm/theme/my_theme_data.dart';
-import 'package:plane_alarm/variables/global_variables.dart';
+import 'package:plane_alarm/widgets/api_listener_widget.dart';
 import 'package:timezone/data/latest_all.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initializeTimeZones();
   await initializeNotifications();
-  // Load .env file
-  await dotenv.load(fileName: ".env");
-
-  final apiKey = dotenv.env['AEROAPI_KEY'];
-  if (apiKey == null || apiKey.isEmpty) {
-    debugPrint('AEROAPI_KEY missing in .env — aborting startup.');
-    return;
-  }
-
-  final api = AeroApiService(apiKey);
 
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => FlightDetailsCubit(api))],
+      providers: [BlocProvider(create: (_) => ApiKeyCubit()..lookForApiKey())],
       child: const MyApp(),
     ),
   );
@@ -40,26 +28,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FlightDetailsCubit>().initialize(
-      kDebugMode == true ? globalInitialCallsign : "",
-    );
-    Timer.periodic(const Duration(minutes: globalRefreshDelayMinutes), (_) {
-      context.read<FlightDetailsCubit>().refreshCubit();
-    });
+    ApiKeyState apiKeyState = context.watch<ApiKeyCubit>().state;
 
-    return BlocListener<FlightDetailsCubit, FlightDetailsState>(
-      listener: (context, state) {
-        if (state is FlightDetailsLoaded) {
-          final progress = (state.flightDetails.progressPercentRaw).round();
-          showProgressStatusBarNotification(progress);
-        }
-      },
-      child: MaterialApp(
-        title: 'Plane Alarm',
-        theme: MyThemeData.theme,
-        home: const MyHomePage(title: 'Plane Alarm'),
-        debugShowCheckedModeBanner: false,
-      ),
+    return MaterialApp(
+      title: 'Plane Alarm',
+      theme: MyThemeData.theme,
+      home:
+          apiKeyState is ApiKeyInitial
+              ? const Center(child: CircularProgressIndicator())
+              : apiKeyState is ApiKeyReady
+              ? BlocProvider(
+                create: (_) => FlightDetailsCubit(apiKeyState.aeroApiService),
+                child: const ApiListenerWidget(),
+              )
+              : const InputApiKeyPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

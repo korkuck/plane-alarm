@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 import 'package:share_plus/share_plus.dart';
@@ -10,7 +9,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ShareFlightWidget extends StatelessWidget {
-  const ShareFlightWidget({super.key});
+  final FlightDetailsCubit flightDetailsCubit;
+
+  const ShareFlightWidget({super.key, required this.flightDetailsCubit});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class ShareFlightWidget extends StatelessWidget {
   }
 
   void showAppSdkQR(BuildContext context) {
-    const localAddress = 'http://192.168.0.4:8080/flutter-apk/app-debug.apk';
+    const localAddress = 'http://192.168.0.35:8080/flutter-apk/app-debug.apk';
 
     showGeneralDialog(
       context: context,
@@ -82,9 +83,8 @@ class ShareFlightWidget extends StatelessWidget {
 
   Future<void> shareFlightRadarURI(BuildContext context) async {
     final flightDetails =
-        context.read<FlightDetailsCubit>().state is FlightDetailsLoaded
-            ? (context.read<FlightDetailsCubit>().state as FlightDetailsLoaded)
-                .flightDetails
+        flightDetailsCubit.state is FlightDetailsLoaded
+            ? (flightDetailsCubit.state as FlightDetailsLoaded).flightDetails
             : null;
     final flightCallsign = flightDetails?.callsign ?? '';
     final uri = Uri.parse('https://flightradar24.com/$flightCallsign');
@@ -102,9 +102,8 @@ class ShareFlightWidget extends StatelessWidget {
 
   Future<void> shareFlightInfoJSON(BuildContext context) async {
     final flightDetails =
-        context.read<FlightDetailsCubit>().state is FlightDetailsLoaded
-            ? (context.read<FlightDetailsCubit>().state as FlightDetailsLoaded)
-                .flightDetails
+        flightDetailsCubit.state is FlightDetailsLoaded
+            ? (flightDetailsCubit.state as FlightDetailsLoaded).flightDetails
             : null;
     final flightDetailsJson = flightDetails?.toJson() ?? {};
 

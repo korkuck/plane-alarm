@@ -37,6 +37,8 @@ class MyBottomAppBar extends StatelessWidget {
   }
 
   void _showSearchNewCallsign(BuildContext context) {
+    final flightDetailsCubit = context.read<FlightDetailsCubit>();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -59,9 +61,7 @@ class MyBottomAppBar extends StatelessWidget {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                context.read<FlightDetailsCubit>().setTargetCallsign(
-                  newCallsign.toUpperCase(),
-                );
+                flightDetailsCubit.setTargetCallsign(newCallsign.toUpperCase());
                 Navigator.of(context).pop();
               },
             ),
@@ -72,10 +72,18 @@ class MyBottomAppBar extends StatelessWidget {
   }
 
   void _showShareFlight(BuildContext context) {
-    showDialog(context: context, builder: (_) => ShareFlightWidget());
+    final flightDetailsCubit = context.read<FlightDetailsCubit>();
+    showDialog(
+      context: context,
+      builder: (_) => ShareFlightWidget(flightDetailsCubit: flightDetailsCubit),
+    );
   }
 
   void _showDebugOptions(BuildContext context) {
-    showDialog(context: context, builder: (_) => DebugOptionsPopup());
+    final flightDetailsCubit = context.read<FlightDetailsCubit>();
+    showDialog(
+      context: context,
+      builder: (_) => DebugOptionsPopup(flightDetailsCubit: flightDetailsCubit),
+    );
   }
 }
