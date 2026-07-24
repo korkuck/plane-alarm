@@ -1,0 +1,14 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.example.plane_alarm",
+            "sha256_cert_fingerprints": [
+                "SHA256: DC:66:DB:31:F3:BC:4C:C8:4E:17:9F:B5:20:B9:58:C2:D3:E6:CF:93:B7:4C:BC:FC:9F:CE:6C:97:3F:73:2C:71"
+            ]
+        }
+    }
+]
