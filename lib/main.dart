@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plane_alarm/cubit/api_key_cubit.dart';
+import 'package:plane_alarm/cubit/deep_link_cubit.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/pages/input_api_key_page.dart';
 import 'package:plane_alarm/services/notification_service.dart';
 import 'package:plane_alarm/theme/my_theme_data.dart';
 import 'package:plane_alarm/widgets/api_listener_widget.dart';
+import 'package:plane_alarm/widgets/deep_link_listener.dart';
 import 'package:timezone/data/latest_all.dart';
 
 Future<void> main() async {
@@ -37,9 +39,17 @@ class MyApp extends StatelessWidget {
           apiKeyState is ApiKeyInitial
               ? const Center(child: CircularProgressIndicator())
               : apiKeyState is ApiKeyReady
-              ? BlocProvider(
-                create: (_) => FlightDetailsCubit(apiKeyState.aeroApiService),
-                child: const ApiListenerWidget(),
+              ? MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create:
+                        (_) => FlightDetailsCubit(apiKeyState.aeroApiService),
+                  ),
+                  BlocProvider(
+                    create: (_) => DeepLinkCubit()..startListening(),
+                  ),
+                ],
+                child: const DeepLinkListener(child: ApiListenerWidget()),
               )
               : const InputApiKeyPage(),
       debugShowCheckedModeBanner: false,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 import 'package:share_plus/share_plus.dart';
@@ -24,7 +25,7 @@ class ShareFlightWidget extends StatelessWidget {
             alignment: MainAxisAlignment.start,
             children: [
               TextButton.icon(
-                onPressed: () => shareFlightInfoJSON(context),
+                onPressed: () => shareFlightInfoJSON(),
                 icon: const Icon(Icons.file_present_outlined),
                 label: const Text('Save flight as JSON'),
               ),
@@ -37,6 +38,11 @@ class ShareFlightWidget extends StatelessWidget {
                 onPressed: () => showAppSdkQR(context),
                 icon: const Icon(Icons.qr_code),
                 label: const Text('Show QR code'),
+              ),
+              TextButton.icon(
+                onPressed: () => shareAppWithCurrentFlight(flightDetailsCubit),
+                icon: const Icon(Icons.airplanemode_active),
+                label: const Text('Share app with current flight'),
               ),
             ],
           ),
@@ -100,7 +106,7 @@ class ShareFlightWidget extends StatelessWidget {
     }
   }
 
-  Future<void> shareFlightInfoJSON(BuildContext context) async {
+  Future<void> shareFlightInfoJSON() async {
     final flightDetails =
         flightDetailsCubit.state is FlightDetailsLoaded
             ? (flightDetailsCubit.state as FlightDetailsLoaded).flightDetails
@@ -119,6 +125,29 @@ class ShareFlightWidget extends StatelessWidget {
       debugPrint("JSON file shared successfully");
     } else {
       debugPrint("Failed to share JSON file: ${result.status}");
+    }
+  }
+
+  Future<void> shareAppWithCurrentFlight(FlightDetailsCubit cubit) async {
+    final String callsign = cubit.getCurrentCallsign();
+
+    if (callsign.isEmpty) {
+      debugPrint("Fill in callsign before sharing the app");
+      return;
+    }
+
+    final appLink = Uri.parse(
+      'https://korkuck.github.io/plane-alarm/flight/$callsign',
+    );
+
+    final params = ShareParams(uri: appLink);
+
+    final result = await SharePlus.instance.share(params);
+
+    if (result.status == ShareResultStatus.success) {
+      debugPrint("App link shared successfully");
+    } else {
+      debugPrint("Failed to share app link: ${result.status}");
     }
   }
 }

@@ -11,11 +11,13 @@ part 'flight_details_state.dart';
 class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   final AeroApiService api;
   String targetCallsign = "";
+  String currentCallsign = "";
   FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
 
   void initialize(String initialCallsign) {
     // Debug callsign for testing
     targetCallsign = initialCallsign;
+    currentCallsign = initialCallsign;
     if (targetCallsign.isEmpty) {
       emit(FlightDetailsError('No callsign provided'));
     } else {
@@ -76,6 +78,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     String ident, {
     bool firstDownload = false,
   }) async {
+    currentCallsign = ident;
     try {
       emit(FlightDetailsLoading());
       final flights = await api.fetchFlightsByIdent(
@@ -200,5 +203,9 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     }
 
     return null; // no active flight found
+  }
+
+  String getCurrentCallsign() {
+    return currentCallsign;
   }
 }

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Plane Alarm</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 520px;
+            margin: 60px auto;
+            padding: 24px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        a.button {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 16px 24px;
+            background: #111;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .note {
+            margin-top: 24px;
+            color: #555;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Plane Alarm</h1>
+
+    <p id="message">This link opens Plane Alarm.</p>
+
+    <a id="openLink" class="button" href="https://korkuck.github.io/plane-alarm/">
+        Open Plane Alarm
+    </a>
+
+    <br />
+
+    <a class="button" href="https://github.com/korkuck/plane-alarm/releases/latest/download/plane-alarm-arm64.apk">
+        Download Android APK
+    </a>
+
+    <p class="note">
+        After installing, tap the same flight link again.
+    </p>
+
+    <script>
+        const parts = window.location.pathname.split("/");
+        const flightIndex = parts.indexOf("flight");
+        const callsign = flightIndex !== -1 ? parts[flightIndex + 1] : "";
+
+        if (callsign) {
+            const cleanCallsign = callsign.toUpperCase();
+            const flightLink =
+                `https://korkuck.github.io/plane-alarm/flight/${cleanCallsign}`;
+
+            document.getElementById("message").textContent =
+                `Open callsign ${cleanCallsign} in Plane Alarm.`;
+
+            document.getElementById("openLink").textContent =
+                `Open ${cleanCallsign} in Plane Alarm`;
+
+            document.getElementById("openLink").href = flightLink;
+        }
+    </script>
+</body>
+
+</html>

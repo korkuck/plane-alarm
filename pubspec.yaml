@@ -48,8 +48,8 @@ dependencies:
   share_plus: ^13.1.0
   qr_flutter: ^4.1.0
   flutter_launcher_icons: ^0.14.4
-  package_info_plus: ^10.1.0
   flutter_secure_storage_x: ^13.1.0
+  app_links: ^6.4.0
 
 
 
@@ -82,7 +82,6 @@ flutter:
     - assets/earth-globe-global-svgrepo-com.svg
     - assets/airplane-best.svg
     - assets/plane-alarm-logo.svg
-    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:
