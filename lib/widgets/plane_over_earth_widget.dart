@@ -43,22 +43,23 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
     const earthSvg = 'assets/earth-globe-global-svgrepo-com.svg';
     const airplaneSvg = 'assets/airplane-best.svg';
 
-    final double earthSize = 240;
-    final double dx = 0;
-    final double dy = -earthSize / 2 - 20;
+    const double earthSize = 240;
+    const double earthAirplaneGap = 40;
+    const double dx = 0;
+    final double dy = -earthSize / 2 - earthAirplaneGap / 2;
 
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.only(top: 40),
+        padding: const EdgeInsets.only(top: earthAirplaneGap),
         child: Center(
           child: BlocBuilder<FlightDetailsCubit, FlightDetailsState>(
             builder: (context, state) {
-              double stateProgressDegrees = 0.0;
+              double stateProgressInDouble = 0.0;
               if (state is FlightDetailsLoaded) {
-                stateProgressDegrees = state.flightDetails.progressPercentRaw;
+                stateProgressInDouble = state.flightDetails.progressPercentRaw;
               }
               final angleRadians =
-                  (stateProgressDegrees / 100 * 360) * pi / 180;
+                  (stateProgressInDouble / 100 * 360) * pi / 180;
 
               return Column(
                 children: [
@@ -98,7 +99,7 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      MySmallText('$stateProgressDegrees%'),
+                      MySmallText('$stateProgressInDouble%'),
                       MySmallText('done'),
                     ],
                   ),

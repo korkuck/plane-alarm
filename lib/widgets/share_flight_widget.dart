@@ -35,7 +35,7 @@ class ShareFlightWidget extends StatelessWidget {
                 label: const Text('Share FR24 URI link'),
               ),
               TextButton.icon(
-                onPressed: () => showAppSdkQR(context),
+                onPressed: () => shareFlightQR(context, flightDetailsCubit),
                 icon: const Icon(Icons.qr_code),
                 label: const Text('Show QR code'),
               ),
@@ -59,8 +59,16 @@ class ShareFlightWidget extends StatelessWidget {
     );
   }
 
-  void showAppSdkQR(BuildContext context) {
-    const localAddress = 'http://192.168.0.35:8080/flutter-apk/app-debug.apk';
+  void shareFlightQR(BuildContext context, FlightDetailsCubit cubit) {
+    final String callsign = cubit.getCurrentCallsign();
+
+    if (callsign.isEmpty) {
+      debugPrint("Fill in callsign before sharing the app");
+      return;
+    }
+
+    final String appLink =
+        'https://korkuck.github.io/plane-alarm/flight/$callsign';
 
     showGeneralDialog(
       context: context,
@@ -72,7 +80,7 @@ class ShareFlightWidget extends StatelessWidget {
         return Center(
           child: Material(
             color: Colors.transparent,
-            child: _QrCard(address: localAddress),
+            child: _QrCard(address: appLink),
           ),
         );
       },

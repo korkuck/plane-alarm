@@ -13,7 +13,7 @@ class ApiKeyCubit extends Cubit<ApiKeyState> {
     String apiKey;
     try {
       await dotenv.load(fileName: ".env");
-      apiKey = dotenv.env['AEROAPI_KEY']?.trim() ?? '';
+      apiKey = dotenv.env["AEROAPI_KEY"]?.trim() ?? '';
     } catch (_) {
       apiKey = "";
     }
@@ -26,11 +26,6 @@ class ApiKeyCubit extends Cubit<ApiKeyState> {
   }
 
   Future<void> checkApiKeyInEnv(String apiKey) async {
-    if (apiKey.isEmpty) {
-      emit(ApiKeyMissing('API key is missing in .env file.'));
-      return;
-    }
-
     final aeroApiService = AeroApiService(apiKey);
 
     if (!(await aeroApiService.isApiKeyValid())) {
