@@ -9,7 +9,6 @@ import 'package:plane_alarm/pages/input_api_key_page.dart';
 import 'package:plane_alarm/services/notification_service.dart';
 import 'package:plane_alarm/theme/my_theme_data.dart';
 import 'package:plane_alarm/widgets/api_listener_widget.dart';
-import 'package:plane_alarm/widgets/deep_link_listener.dart';
 import 'package:timezone/data/latest_all.dart';
 
 Future<void> main() async {
@@ -45,11 +44,9 @@ class MyApp extends StatelessWidget {
                     create:
                         (_) => FlightDetailsCubit(apiKeyState.aeroApiService),
                   ),
-                  BlocProvider(
-                    create: (_) => DeepLinkCubit()..startListening(),
-                  ),
+                  BlocProvider(create: (_) => DeepLinkCubit()),
                 ],
-                child: const DeepLinkListener(child: ApiListenerWidget()),
+                child: ApiListenerWidget(),
               )
               : const InputApiKeyPage(),
       debugShowCheckedModeBanner: false,

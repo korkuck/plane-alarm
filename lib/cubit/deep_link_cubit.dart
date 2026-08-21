@@ -10,9 +10,13 @@ class DeepLinkCubit extends Cubit<DeepLinkState> {
   DeepLinkCubit() : super(const DeepLinkInitial());
 
   final AppLinks _appLinks = AppLinks();
+  bool _startedListening = false;
   StreamSubscription<Uri>? _subscription;
 
   Future<void> startListening() async {
+    if (_startedListening) return;
+    _startedListening = true;
+
     final initialUri = await _appLinks.getInitialLink();
 
     if (initialUri != null) {

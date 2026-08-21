@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:plane_alarm/classes/flight_details.dart';
 import 'package:plane_alarm/services/notification_service.dart';
+import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:timezone/timezone.dart';
 import '../services/aero_api_service.dart';
 
@@ -12,12 +15,25 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   final AeroApiService api;
   String targetCallsign = "";
   String currentCallsign = "";
+  Timer? _refreshTimer;
+  bool _started = false;
   FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
 
-  void initialize(String initialCallsign) {
+  void startCubit({String? initialCallsign}) {
+    if (_started) return;
+    _started = true;
+
+    if (initialCallsign == null || initialCallsign.isEmpty) {
+      initialCallsign = kDebugMode ? globalInitialCallsign : "";
+    }
+    initialize(initialCallsign);
+    startRefreshing();
+  }
+
+  void initialize(String? initialCallsign) {
     // Debug callsign for testing
-    targetCallsign = initialCallsign;
-    currentCallsign = initialCallsign;
+    targetCallsign = initialCallsign ?? "";
+    currentCallsign = initialCallsign ?? "";
     if (targetCallsign.isEmpty) {
       emit(FlightDetailsError('No callsign provided'));
     } else {
@@ -27,6 +43,14 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   void refreshCubit() {
     fetchFlightData(targetCallsign);
+  }
+
+  void startRefreshing() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(
+      const Duration(minutes: globalRefreshDelayMinutes),
+      (_) => refreshCubit(),
+    );
   }
 
   void setTargetCallsign(String callsign) {
@@ -207,5 +231,11 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   String getCurrentCallsign() {
     return currentCallsign;
+  }
+
+  @override
+  Future<void> close() {
+    _refreshTimer?.cancel();
+    return super.close();
   }
 }
