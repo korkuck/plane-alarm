@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 import 'package:share_plus/share_plus.dart';
@@ -120,13 +119,10 @@ class ShareFlightWidget extends StatelessWidget {
             ? (flightDetailsCubit.state as FlightDetailsLoaded).flightDetails
             : null;
     final flightDetailsJson = flightDetails?.toJson() ?? {};
-
     final phoneDir = await getApplicationDocumentsDirectory();
     final jsonFile = File('${phoneDir.path}/flight_details_to_share.json');
     await jsonFile.writeAsString(jsonEncode(flightDetailsJson));
-
     final params = ShareParams(files: [XFile(jsonFile.path)]);
-
     final result = await SharePlus.instance.share(params);
 
     if (result.status == ShareResultStatus.success) {
