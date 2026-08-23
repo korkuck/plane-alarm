@@ -23,10 +23,13 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     if (_started) return;
     _started = true;
 
-    if (initialCallsign == null || initialCallsign.isEmpty) {
-      initialCallsign = kDebugMode ? globalInitialCallsign : "";
+    final cleanedCallsign = initialCallsign?.trim().toUpperCase() ?? '';
+
+    if (cleanedCallsign.isNotEmpty) {
+      initialize(cleanedCallsign);
+    } else if (kDebugMode && globalInitialCallsign.isNotEmpty) {
+      initialize(globalInitialCallsign);
     }
-    initialize(initialCallsign);
     startRefreshing();
   }
 
