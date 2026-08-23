@@ -38,16 +38,17 @@
 </head>
 
 <body>
-    <h1>Shared flight</h1>
+    <h1>Plane Alarm Webpage</h1>
 
-    <p id="message">This link opens Plane Alarm.</p>
+    <p id="message">To provide Plane Alarm with callsign, add it to url after /flight/</p>
 
     <a id="openLink" class="button" href="https://korkuck.github.io/plane-alarm/">
-        Open Plane Alarm
+        Open Plane Alarm Download Page
     </a>
 
-    <a id="findFlightLink" class="button" href="https://korkuck.github.io/plane-alarm/">
-        Find flight in Plane Alarm
+    <a id="findFlightLink" class="button"
+        href="`intent://korkuck.github.io/plane-alarm/flight/${encodeURIComponent(QFA10)}#Intent;scheme=https;package=com.example.plane_alarm;end`">
+        QFA10 flight example in Plane Alarm app
     </a>
 
     <a class="button" href="https://github.com/korkuck/plane-alarm/releases/download/0.2.0/plane-alarm-release.apk">
@@ -71,12 +72,15 @@
             const flightIntentLink = `intent://korkuck.github.io/plane-alarm/flight/${encodeURIComponent(cleanCallsign)}#Intent;scheme=https;package=com.example.plane_alarm;end`;
 
             document.getElementById("message").textContent =
-                `Open callsign ${cleanCallsign} in Plane Alarm.`;
+                `Choose how to look for your flight ${cleanCallsign}:`;
 
             document.getElementById("openLink").textContent =
-                `Open ${cleanCallsign} in Plane Alarm`;
+                `Open ${cleanCallsign} in web page`;
 
             document.getElementById("openLink").href = flightLink;
+
+            document.getElementById("findFlightLink").textContent =
+                `Find ${cleanCallsign} in Plane Alarm app`;
 
             document.getElementById("findFlightLink").href = flightIntentLink;
         }
