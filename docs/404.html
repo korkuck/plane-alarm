@@ -48,7 +48,7 @@
 
     <a id="findFlightLink" class="button"
         href="`intent://korkuck.github.io/plane-alarm/flight/${encodeURIComponent(QFA10)}#Intent;scheme=https;package=com.example.plane_alarm;end`">
-        QFA10 flight example in Plane Alarm app
+        QFA10 flight example in Plane Alarm app, download app first if not installed via button below
     </a>
 
     <a class="button" href="https://github.com/korkuck/plane-alarm/releases/download/0.2.0/plane-alarm-release.apk">
@@ -66,10 +66,15 @@
 
         if (callsign) {
             const cleanCallsign = callsign.toUpperCase();
-            const flightLink =
-                `https://korkuck.github.io/plane-alarm/flight/${cleanCallsign}`;
 
-            const flightIntentLink = `intent://korkuck.github.io/plane-alarm/flight/${encodeURIComponent(cleanCallsign)}#Intent;scheme=https;package=com.example.plane_alarm;end`;
+            const flightLink = `https://korkuck.github.io/plane-alarm/flight/${cleanCallsign}`;
+
+            const apkDownloadUrl = "https://github.com/korkuck/plane-alarm/releases/download/0.2.0/plane-alarm-release.apk";
+
+            const flightIntentLink =
+                `intent://korkuck.github.io/plane-alarm/flight/${encodeURIComponent(cleanCallsign)}#Intent;scheme=https;package=com.example.plane_alarm;S.browser_fallback_url=${encodeURIComponent(apkDownloadUrl)};end`;
+
+
 
             document.getElementById("message").textContent =
                 `Choose how to look for your flight ${cleanCallsign}:`;
