@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:plane_alarm/classes/flight_details.dart';
+import 'package:plane_alarm/services/flight_foreground_service.dart';
 import 'package:plane_alarm/services/notification_service.dart';
 import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:timezone/timezone.dart';
@@ -51,12 +52,13 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   void startRefreshing() {
     _refreshTimer?.cancel();
     _refreshTimer = Timer.periodic(
-      const Duration(minutes: globalRefreshDelayMinutes),
+      const Duration(minutes: globalRefreshApiDelayMinutes),
       (_) => refreshCubit(),
     );
   }
 
   void setTargetCallsign(String callsign) {
+    const FlightForegroundService().stop();
     targetCallsign = callsign;
     fetchFlightData(targetCallsign, firstDownload: true);
   }
@@ -171,6 +173,11 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
           currentFlight['estimated_in'],
           destination['timezone'],
         ),
+        'stopTrackingTime': _calculatetStopTrackingTime(
+          currentFlight['estimated_in'],
+          arrivalDelayMinutes,
+          destination['timezone'],
+        ),
       };
 
       final flightDetails = FlightDetails().jsonToFlightDetails(
@@ -194,6 +201,19 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
       debugPrint('Error converting time: $e');
       return utcDate;
     }
+  }
+
+  DateTime? _calculatetStopTrackingTime(
+    String? estimatedInRaw,
+    int? arrivalDelayMinutes,
+    String? timezone,
+  ) {
+    final estimatedIn = _fromUTCtoLocal(estimatedInRaw, timezone);
+    arrivalDelayMinutes ??= 0;
+    if (estimatedIn == null) return null;
+    return estimatedIn.add(
+      Duration(minutes: arrivalDelayMinutes + globalTrackingBufferMinutes),
+    );
   }
 
   _findOngoingFlight(List<dynamic> flights) {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:plane_alarm/cubit/api_key_cubit.dart';
 import 'package:plane_alarm/cubit/deep_link_cubit.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
@@ -13,6 +14,7 @@ import 'package:timezone/data/latest_all.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterForegroundTask.initCommunicationPort();
   initializeTimeZones();
   await initializeNotifications();
 

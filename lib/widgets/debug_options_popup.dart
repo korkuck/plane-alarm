@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
+import 'package:plane_alarm/services/flight_foreground_service.dart';
+import 'package:plane_alarm/services/notification_service.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class DebugOptionsPopup extends StatelessWidget {
@@ -28,6 +30,7 @@ class DebugOptionsPopup extends StatelessWidget {
                   flightDetailsCubit.manualChangeDestination('KTW', 'Katowice'),
             ),
             _item(context, 'Induce emergency', () {}),
+            _item(context, 'Stop background tracking', _stopTracking),
           ],
         ),
       ),
@@ -50,6 +53,15 @@ class DebugOptionsPopup extends StatelessWidget {
         ),
         child: Center(child: MySmallText(text, color: Colors.black)),
       ),
+    );
+  }
+
+  //TODO: Clear cache upon stop tracking
+
+  _stopTracking() async {
+    await const FlightForegroundService().stop();
+    pushNotification(
+      'Background tracking stopped, killing app may stop tracking completely',
     );
   }
 }

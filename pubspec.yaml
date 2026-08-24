@@ -43,6 +43,7 @@ dependencies:
   path_provider: ^2.1.5
   marquee: ^2.3.0
   flutter_local_notifications: ^18.0.1
+  flutter_foreground_task: ^10.0.0
   permission_handler: ^12.0.1
   timezone: ^0.9.4
   share_plus: ^13.1.0

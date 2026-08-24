@@ -20,6 +20,7 @@ class FlightDetails {
   DateTime? actualOutLocal;
   DateTime? scheduledInLocal;
   DateTime? estimatedInLocal;
+  DateTime? stopTrackingTime;
 
   FlightDetails({
     this.callsign,
@@ -43,6 +44,7 @@ class FlightDetails {
     this.actualOutLocal,
     this.scheduledInLocal,
     this.estimatedInLocal,
+    this.stopTrackingTime,
   });
 
   FlightDetails copyWith({
@@ -67,6 +69,7 @@ class FlightDetails {
     DateTime? actualOutLocal,
     DateTime? scheduledInLocal,
     DateTime? estimatedInLocal,
+    DateTime? stopTrackingTime,
   }) {
     return FlightDetails(
       callsign: callsign ?? this.callsign,
@@ -90,6 +93,7 @@ class FlightDetails {
       actualOutLocal: actualOutLocal ?? this.actualOutLocal,
       scheduledInLocal: scheduledInLocal ?? this.scheduledInLocal,
       estimatedInLocal: estimatedInLocal ?? this.estimatedInLocal,
+      stopTrackingTime: stopTrackingTime ?? this.stopTrackingTime,
     );
   }
 
@@ -117,6 +121,7 @@ class FlightDetails {
       actualOutLocal: json['actualOutLocal'] as DateTime?,
       scheduledInLocal: json['scheduledInLocal'] as DateTime?,
       estimatedInLocal: json['estimatedInLocal'] as DateTime?,
+      stopTrackingTime: json['stopTrackingTime'] as DateTime?,
     );
   }
 
@@ -143,6 +148,7 @@ class FlightDetails {
       'actualOutLocal': actualOutLocal?.toIso8601String(),
       'scheduledInLocal': scheduledInLocal?.toIso8601String(),
       'estimatedInLocal': estimatedInLocal?.toIso8601String(),
+      'stopTrackingTime': stopTrackingTime?.toIso8601String(),
     };
   }
 
