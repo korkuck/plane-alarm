@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plane_alarm/cubit/flight_details_cubit.dart';
-import 'package:plane_alarm/services/flight_foreground_service.dart';
-import 'package:plane_alarm/services/notification_service.dart';
+import 'package:plane_alarm/services/resource_cleaner_service.dart';
 import 'package:plane_alarm/widgets/my_text.dart';
 
 class DebugOptionsPopup extends StatelessWidget {
@@ -33,7 +32,7 @@ class DebugOptionsPopup extends StatelessWidget {
             _item(
               context,
               'Stop background tracking, clear cache',
-              () async => await _stopTracking(context),
+              () async => await stopCallsignTracking(context),
             ),
           ],
         ),
@@ -61,22 +60,6 @@ class DebugOptionsPopup extends StatelessWidget {
           color: Colors.grey[200],
         ),
         child: Center(child: MySmallText(text, color: Colors.black)),
-      ),
-    );
-  }
-
-  _stopTracking(BuildContext context) async {
-    flightDetailsCubit.stopRefreshing();
-    await const FlightForegroundService().stop();
-    await cancelAllAppNotifications();
-    //TODO: Fix context in async issue
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: MySmallText(
-          'Background tracking stopped and cache cleared',
-          color: Colors.white,
-        ),
-        backgroundColor: Colors.red,
       ),
     );
   }
