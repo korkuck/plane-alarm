@@ -32,7 +32,8 @@ class DebugOptionsPopup extends StatelessWidget {
             _item(
               context,
               'Stop background tracking, clear cache',
-              () async => await stopCallsignTracking(context),
+              () async => await ResourceCleanerService()
+                  .stopCallsignTrackingFromUi(context),
             ),
           ],
         ),

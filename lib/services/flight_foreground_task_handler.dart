@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:plane_alarm/services/resource_cleaner_service.dart';
 
 @pragma('vm:entry-point')
 void flightForegroundStartCallback() {
@@ -34,7 +35,7 @@ class FlightForegroundTaskHandler extends TaskHandler {
         notificationText: '$callsign tracking stopped',
       );
 
-      await FlutterForegroundTask.stopService();
+      await ResourceCleanerService().stopCallsignTracking(null);
       return;
     }
 
