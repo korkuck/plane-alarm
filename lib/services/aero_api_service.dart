@@ -47,6 +47,7 @@ class AeroApiService {
       headers: {'x-apikey': apiKey, 'Accept': 'application/json'},
     );
 
+    //TODO: Handle showing Exception in FlightInfoColumn and ArrivalInfoWidget
     if (resp.statusCode != 200) {
       throw Exception('AeroAPI error: ${resp.statusCode} ${resp.body}');
     }

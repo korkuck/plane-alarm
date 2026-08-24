@@ -18,6 +18,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   String currentCallsign = "";
   Timer? _refreshTimer;
   bool _started = false;
+  bool _isStopped = false;
   FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
 
   void startCubit({String? initialCallsign}) {
@@ -38,6 +39,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     // Debug callsign for testing
     targetCallsign = initialCallsign ?? "";
     currentCallsign = initialCallsign ?? "";
+    _isStopped = false;
     if (targetCallsign.isEmpty) {
       emit(FlightDetailsError('No callsign provided'));
     } else {
@@ -46,6 +48,9 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
   }
 
   void refreshCubit() {
+    if (_isStopped == true || targetCallsign.isEmpty) {
+      return;
+    }
     fetchFlightData(targetCallsign);
   }
 
@@ -59,6 +64,8 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   void setTargetCallsign(String callsign) {
     const FlightForegroundService().stop();
+    _isStopped = false;
+    startRefreshing();
     targetCallsign = callsign;
     fetchFlightData(targetCallsign, firstDownload: true);
   }
@@ -254,6 +261,12 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
 
   String getCurrentCallsign() {
     return currentCallsign;
+  }
+
+  void stopRefreshing() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    _isStopped = true;
   }
 
   @override

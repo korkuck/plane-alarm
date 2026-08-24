@@ -38,10 +38,11 @@ class InputApiKeyPage extends StatelessWidget {
                           color: state is ApiKeyError ? Colors.red : null,
                         ),
                       ),
-                      onSubmitted: (value) async {
-                        apiKey = inputController.text;
-                        await apiKeyCubit.inputApiKey(apiKey);
-                      },
+                      onSubmitted:
+                          (value) =>
+                              _inputApiKey(inputController.text, apiKeyCubit),
+                      onEditingComplete:
+                          () => _inputApiKey(inputController.text, apiKeyCubit),
                     ),
                     IconButton(
                       icon: Icon(Icons.check),
@@ -59,5 +60,9 @@ class InputApiKeyPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  _inputApiKey(String apiKey, ApiKeyCubit apiKeyCubit) async {
+    await apiKeyCubit.inputApiKey(apiKey);
   }
 }

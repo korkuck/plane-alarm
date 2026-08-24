@@ -103,3 +103,8 @@ Future<void> pushNotification(String message) async {
     debugPrint('Error pushing notification: $e');
   }
 }
+
+// Cancel all notifications, not necessarily safe, in future assign unique IDs to each notification and cancel by ID
+Future<void> cancelAllAppNotifications() async {
+  await flutterLocalNotificationsPlugin.cancelAll();
+}

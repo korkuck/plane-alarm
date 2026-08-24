@@ -21,26 +21,35 @@ class DebugOptionsPopup extends StatelessWidget {
             _item(
               context,
               'Delay +20 min',
-              () => flightDetailsCubit.manualDelay(20),
+              () async => flightDetailsCubit.manualDelay(20),
             ),
             _item(
               context,
               'Change destination to EPKT',
-              () =>
+              () async =>
                   flightDetailsCubit.manualChangeDestination('KTW', 'Katowice'),
             ),
-            _item(context, 'Induce emergency', () {}),
-            _item(context, 'Stop background tracking', _stopTracking),
+            _item(context, 'Induce emergency', () async {}),
+            _item(
+              context,
+              'Stop background tracking, clear cache',
+              () async => await _stopTracking(context),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _item(BuildContext context, String text, VoidCallback onType) {
+  Widget _item(
+    BuildContext context,
+    String text,
+    Future<void> Function() onType,
+  ) {
     return InkWell(
-      onTap: () {
-        onType();
+      onTap: () async {
+        await onType();
+        //TODO: Fix context in async issue
         Navigator.of(context).pop();
       },
       child: Container(
@@ -56,12 +65,19 @@ class DebugOptionsPopup extends StatelessWidget {
     );
   }
 
-  //TODO: Clear cache upon stop tracking
-
-  _stopTracking() async {
+  _stopTracking(BuildContext context) async {
+    flightDetailsCubit.stopRefreshing();
     await const FlightForegroundService().stop();
-    pushNotification(
-      'Background tracking stopped, killing app may stop tracking completely',
+    await cancelAllAppNotifications();
+    //TODO: Fix context in async issue
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: MySmallText(
+          'Background tracking stopped and cache cleared',
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 }

@@ -61,7 +61,11 @@ class MyBottomAppBar extends StatelessWidget {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                flightDetailsCubit.setTargetCallsign(newCallsign.toUpperCase());
+                if (newCallsign.isNotEmpty) {
+                  flightDetailsCubit.setTargetCallsign(
+                    newCallsign.toUpperCase(),
+                  );
+                }
                 Navigator.of(context).pop();
               },
             ),

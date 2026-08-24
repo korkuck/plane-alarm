@@ -67,7 +67,9 @@ class FlightForegroundService {
     );
   }
 
-  Future<void> stop() {
-    return FlutterForegroundTask.stopService();
+  Future<void> stop() async {
+    await FlutterForegroundTask.stopService();
+    await FlutterForegroundTask.removeData(key: 'callsign');
+    await FlutterForegroundTask.removeData(key: 'stopAtMillis');
   }
 }
