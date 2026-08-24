@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:plane_alarm/services/resource_cleaner_service.dart';
 import 'package:plane_alarm/variables/global_variables.dart';
 
 class AeroApiService {
@@ -17,7 +18,7 @@ class AeroApiService {
     String ident, {
     bool firstDownload = false,
   }) async {
-    if (firstDownload) clearCache();
+    if (firstDownload) await clearCache();
     if (kDebugMode || globalUseOfflineData) {
       debugPrint('Checking flight backups for ident: $ident');
       final backupFile = await _loadBackup(ident);
@@ -102,21 +103,6 @@ class AeroApiService {
     }
   }
 
-  Future<void> clearCache() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final files = dir.listSync().whereType<File>();
-      for (final file in files) {
-        if (file.path.contains('flights_local_backup_')) {
-          await file.delete();
-          debugPrint("🗑 Deleted cache file: ${file.path}");
-        }
-      }
-    } catch (e) {
-      debugPrint("⚠ Could not clear cache: $e");
-    }
-  }
-
   Future<bool> isApiKeyValid() async {
     final resp = await http.get(
       Uri.parse('$_base/account/usage'),
@@ -137,6 +123,4 @@ class AeroApiService {
 
     return false;
   }
-
-  //TODO: CLEAR CACHED DATA ON NEW CALLSIGN SEARCHED.
 }

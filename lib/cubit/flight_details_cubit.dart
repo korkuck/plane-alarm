@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:plane_alarm/classes/flight_details.dart';
 import 'package:plane_alarm/services/flight_foreground_service.dart';
 import 'package:plane_alarm/services/notification_service.dart';
+import 'package:plane_alarm/services/resource_cleaner_service.dart';
 import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:timezone/timezone.dart';
 import '../services/aero_api_service.dart';
@@ -13,13 +14,13 @@ import '../services/aero_api_service.dart';
 part 'flight_details_state.dart';
 
 class FlightDetailsCubit extends Cubit<FlightDetailsState> {
-  final AeroApiService api;
+  final AeroApiService aeroApiService;
   String targetCallsign = "";
   String currentCallsign = "";
   Timer? _refreshTimer;
   bool _started = false;
   bool _isStopped = false;
-  FlightDetailsCubit(this.api) : super(FlightDetailsInitial());
+  FlightDetailsCubit(this.aeroApiService) : super(FlightDetailsInitial());
 
   void startCubit({String? initialCallsign}) {
     if (_started) return;
@@ -117,7 +118,7 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     currentCallsign = ident;
     try {
       emit(FlightDetailsLoading());
-      final flights = await api.fetchFlightsByIdent(
+      final flights = await aeroApiService.fetchFlightsByIdent(
         ident,
         firstDownload: firstDownload,
       );
@@ -263,14 +264,15 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     return currentCallsign;
   }
 
-  void stopRefreshing() {
+  Future<void> stopRefreshing() async {
     _refreshTimer?.cancel();
     _refreshTimer = null;
     _isStopped = true;
+    await clearCache();
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _refreshTimer?.cancel();
     return super.close();
   }
