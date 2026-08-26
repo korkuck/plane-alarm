@@ -35,7 +35,7 @@ class FlightForegroundTaskHandler extends TaskHandler {
         notificationText: '$callsign tracking stopped',
       );
 
-      await ResourceCleanerService().stopCallsignTracking(null);
+      await stopCallsignTracking(null);
       return;
     }
 
@@ -53,7 +53,7 @@ class FlightForegroundTaskHandler extends TaskHandler {
   @override
   void onNotificationButtonPressed(String id) {
     if (id == 'stop_service') {
-      FlutterForegroundTask.stopService();
+      stopCallsignTracking(null);
     }
   }
 }

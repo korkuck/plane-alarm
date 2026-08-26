@@ -268,7 +268,6 @@ class FlightDetailsCubit extends Cubit<FlightDetailsState> {
     _refreshTimer?.cancel();
     _refreshTimer = null;
     _isStopped = true;
-    await clearCache();
   }
 
   @override

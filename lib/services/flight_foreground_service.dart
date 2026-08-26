@@ -5,6 +5,9 @@ import 'package:plane_alarm/variables/global_variables.dart';
 class FlightForegroundService {
   const FlightForegroundService();
 
+  //TODO: make the ID unique instead of magic number
+  final int flightTrackingForegroundServiceId = 10;
+
   Future<void> initialize() async {
     final notificationPermission =
         await FlutterForegroundTask.checkNotificationPermission();
@@ -56,7 +59,7 @@ class FlightForegroundService {
     }
 
     await FlutterForegroundTask.startService(
-      serviceId: 710,
+      serviceId: flightTrackingForegroundServiceId,
       serviceTypes: const [ForegroundServiceTypes.specialUse],
       notificationTitle: 'Tracking $cleanCallsign',
       notificationText: 'Plane Alarm is tracking this flight',

@@ -37,9 +37,12 @@ Future<void> clearCache() async {
   }
 }
 
-Future<void> stopCallsignTrackingFromUi(BuildContext context) async {
-  stopCallsignTracking(context.read<FlightDetailsCubit>());
-  //TODO: Fix context in async issue
+Future<void> stopCallsignTrackingFromUi(
+  BuildContext context,
+  FlightDetailsCubit flightDetailsCubit,
+) async {
+  await stopCallsignTracking(flightDetailsCubit);
+
   if (!context.mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
@@ -57,8 +60,8 @@ Future<void> stopCallsignTracking(
 ) async {
   final flightForegroundService = const FlightForegroundService();
   await flightForegroundService.stop();
-  flightDetailsCubit?.stopRefreshing();
+  await flightDetailsCubit?.stopRefreshing();
   await cancelAllAppNotifications();
-  clearTemporaryDirectory();
-  clearCache();
+  await clearTemporaryDirectory();
+  await clearCache();
 }

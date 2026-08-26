@@ -52,7 +52,7 @@
             android:exported="false">
             <property
             android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-            android:value="Foreground service for flight tracking until one hour after estimated arrival or until the user stops it." />
+            android:value="Foreground service for flight tracking until designated time after estimated arrival or until the user stops it." />
         </service>
 
         <meta-data

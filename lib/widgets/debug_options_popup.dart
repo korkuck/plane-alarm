@@ -32,8 +32,8 @@ class DebugOptionsPopup extends StatelessWidget {
             _item(
               context,
               'Stop background tracking, clear cache',
-              () async => await ResourceCleanerService()
-                  .stopCallsignTrackingFromUi(context),
+              () async =>
+                  await stopCallsignTrackingFromUi(context, flightDetailsCubit),
             ),
           ],
         ),
@@ -49,7 +49,7 @@ class DebugOptionsPopup extends StatelessWidget {
     return InkWell(
       onTap: () async {
         await onType();
-        //TODO: Fix context in async issue
+        if (!context.mounted) return;
         Navigator.of(context).pop();
       },
       child: Container(
