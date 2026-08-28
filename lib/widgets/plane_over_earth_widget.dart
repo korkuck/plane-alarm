@@ -48,65 +48,62 @@ class _PlaneOverEarthWidgetState extends State<PlaneOverEarthWidget>
     const double dx = 0;
     final double dy = -earthSize / 2 - earthAirplaneGap / 2;
 
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(top: earthAirplaneGap),
-        child: Center(
-          child: BlocBuilder<FlightDetailsCubit, FlightDetailsState>(
-            builder: (context, state) {
-              double stateProgressInDouble = 0.0;
-              if (state is FlightDetailsLoaded) {
-                stateProgressInDouble = state.flightDetails.progressPercentRaw;
-              }
-              final angleRadians =
-                  (stateProgressInDouble / 100 * 360) * pi / 180;
+    return Padding(
+      padding: const EdgeInsets.only(top: earthAirplaneGap),
+      child: Center(
+        child: BlocBuilder<FlightDetailsCubit, FlightDetailsState>(
+          builder: (context, state) {
+            double stateProgressInDouble = 0.0;
+            if (state is FlightDetailsLoaded) {
+              stateProgressInDouble = state.flightDetails.progressPercentRaw;
+            }
+            final angleRadians = (stateProgressInDouble / 100 * 360) * pi / 180;
 
-              return Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        earthSvg,
-                        height: earthSize,
-                        width: earthSize,
-                        semanticsLabel: 'Earth',
-                      ),
-                      TweenAnimationBuilder<double>(
-                        tween: Tween<double>(begin: 0, end: angleRadians),
-                        duration: const Duration(milliseconds: 300),
-                        builder: (context, animatedAngle, child) {
-                          return Transform.rotate(
-                            angle: animatedAngle,
-                            child: Transform.translate(
-                              offset: Offset(dx, dy),
-                              child: SlideTransition(
-                                position: _bobbingAnimation,
-                                child: child,
-                              ),
+            return Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      earthSvg,
+                      height: earthSize,
+                      width: earthSize,
+                      semanticsLabel: 'Earth',
+                    ),
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: angleRadians),
+                      duration: const Duration(milliseconds: 300),
+                      builder: (context, animatedAngle, child) {
+                        return Transform.rotate(
+                          angle: animatedAngle,
+                          child: Transform.translate(
+                            offset: Offset(dx, dy),
+                            child: SlideTransition(
+                              position: _bobbingAnimation,
+                              child: child,
                             ),
-                          );
-                        },
-                        child: SvgPicture.asset(
-                          airplaneSvg,
-                          height: 64,
-                          width: 64,
-                          semanticsLabel: 'Airplane',
-                        ),
+                          ),
+                        );
+                      },
+                      child: SvgPicture.asset(
+                        airplaneSvg,
+                        height: 64,
+                        width: 64,
+                        semanticsLabel: 'Airplane',
                       ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      MySmallText('$stateProgressInDouble%'),
-                      MySmallText('done'),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    MySmallText('$stateProgressInDouble%'),
+                    MySmallText('done'),
+                  ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
