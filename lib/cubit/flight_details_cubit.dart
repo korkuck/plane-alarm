@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:plane_alarm/classes/flight_details.dart';
 import 'package:plane_alarm/services/flight_foreground_service.dart';
 import 'package:plane_alarm/services/notification_service.dart';
-import 'package:plane_alarm/services/resource_cleaner_service.dart';
 import 'package:plane_alarm/variables/global_variables.dart';
 import 'package:timezone/timezone.dart';
 import '../services/aero_api_service.dart';

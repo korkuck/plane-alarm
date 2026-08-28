@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:plane_alarm/services/aero_api_service.dart';
 import 'package:plane_alarm/services/api_key_storage.dart';
@@ -15,6 +16,7 @@ class ApiKeyCubit extends Cubit<ApiKeyState> {
       await dotenv.load(fileName: ".env");
       apiKey = dotenv.env["AEROAPI_KEY"]?.trim() ?? '';
     } catch (_) {
+      debugPrint('Error loading API from .env file.');
       apiKey = "";
     }
 
